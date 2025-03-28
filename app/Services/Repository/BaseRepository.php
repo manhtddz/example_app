@@ -101,7 +101,7 @@ abstract class BaseRepository implements IRepository
             }
 
             if ($sort === 'name' && $this->model === Employee::class) {
-                $query->orderByRaw("CONCAT(first_name, ' ', last_name) {$direction}");
+                $query->orderByName($direction);
             } else {
                 if ($sort && in_array(strtolower($sort), $columns)) {
                     $query->orderBy($sort, strtolower($direction));

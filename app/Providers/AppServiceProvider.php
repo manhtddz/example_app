@@ -12,6 +12,8 @@ class AppServiceProvider extends ServiceProvider
     public $repoBinding = [
         'App\Services\Interfaces\IEmployeeRepository' => 'App\Services\Repository\EmployeeRepository',
         'App\Services\Interfaces\ITeamRepository' => 'App\Services\Repository\TeamRepository',
+        'App\Services\Interfaces\IProjectRepository' => 'App\Services\Repository\ProjectRepository',
+        'App\Services\Interfaces\ITaskRepository' => 'App\Services\Repository\TaskRepository',
     ];
     public function register(): void
     {

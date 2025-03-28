@@ -135,7 +135,7 @@ class EmployeeService
         if (!$result) {
             throw new Exception(DELETE_FAILED);
         }
-        
+
         return $result;
     }
     public function prepareConfirmForUpdate($id, EmployeeUpdateRequest $request)
@@ -197,17 +197,21 @@ class EmployeeService
         $absolutePath = Storage::disk('public')->path($filePath);
 
         $handle = fopen($absolutePath, "w");
+        fprintf($handle, chr(0xEF) . chr(0xBB) . chr(0xBF));
+
         fputcsv($handle, ['ID', 'Team', 'Name', 'Email']);
 
         $emps = Employee::whereIn('id', $ids)->get(); // Filter by ID
 
         foreach ($emps as $emp) {
-            fputcsv($handle, [
-                strip_tags($emp->id),
-                strip_tags($emp->team->name),
-                strip_tags($emp->name),
-                strip_tags($emp->email)
-            ]);
+            fputcsv($handle, array_map(function ($value) {
+                return mb_convert_encoding(strip_tags($value), 'UTF-8', 'auto');
+            }, [
+                $emp->id,
+                $emp->team->name,
+                $emp->name,
+                $emp->email
+            ]));
         }
 
         fclose($handle);

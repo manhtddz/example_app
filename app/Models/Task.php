@@ -3,47 +3,24 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Model;
 
-class Employee extends Authenticatable
+class Task extends Model
 {
     use HasFactory;
     protected $primaryKey = 'id';
     public $timestamps = false;
-    protected $table = "m_employees";
+    protected $table = "tasks";
     protected $fillable = [
-        'team_id',
-        'email',
-        'first_name',
-        'last_name',
-        'password',
-        'gender',
-        'birthday',
-        'address',
-        'avatar',
-        'salary',
-        'position',
-        'status',
-        'type_of_work',
+        'name',
+        'project_id',
+        'task_status',
         'del_flag'
     ];
-
-    public function setPasswordAttribute($value)
-    {
-        if (!password_get_info($value)['algo']) {
-            $this->attributes['password'] = bcrypt($value);
-        }
-    }
-
-    public function getNameAttribute()
-    {
-        return $this->first_name . ' ' . $this->last_name;
-    }
 
     protected static function boot()
     {
         parent::boot();
-
         static::creating(function ($model) {
             $model->ins_id = auth()->user()->id;
             $model->del_flag = IS_NOT_DELETED;
@@ -61,49 +38,24 @@ class Employee extends Authenticatable
         });
     }
 
-    public function scopeSearchName($query, $keyword)
-    {
-        return $query->whereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$keyword}%"]);
-    }
-
     public function getQueries($builder)
     {
         $addSlashes = str_replace('?', "'?'", $builder->toSql());
         return vsprintf(str_replace('?', '%s', $addSlashes), $builder->getBindings());
     }
-    public function scopeOrderByName($query, $dir)
-    {
-        return $query->orderByRaw("CONCAT(first_name, ' ', last_name) {$dir}");
-    }
-
-    public function team()//relationship
-    {
-        return $this->belongsTo(Team::class);
-    }
-
-    public function projects()
+    public function employees()//relationship
     {
         return $this->belongsToMany(
-            Project::class,
-            'employee_project',
-            'employee_id',
-            'project_id'
-        );
-    }
-    public function tasks()
-    {
-        return $this->belongsToMany(
-            Task::class,
+            Employee::class,
             'employee_task',
-            'employee_id',
-            'task_id'
+            'task_id',
+            'employee_id'
         );
     }
-    public function getAuthIdentifierName()
+    public function project()//relationship
     {
-        return 'email'; // authenticate field
+        return $this->belongsTo(Project::class);
     }
-
     //Update del_flag to 1, so that upd_datetime and upd_id are automatically updated
     public function delete()
     {
@@ -122,5 +74,9 @@ class Employee extends Authenticatable
     public function trashed()
     {
         return $this->del_flag == IS_DELETED;
+    }
+    public static function getFieldById($id, $field)
+    {
+        return self::where('id', $id)->value($field);
     }
 }

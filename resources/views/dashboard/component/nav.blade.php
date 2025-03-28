@@ -28,6 +28,28 @@
                     </ul>
                 </li>
 
+                <!-- Project Management -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle {{ Request::routeIs('project.*') ? 'active' : '' }}" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                    Project management
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item {{ Request::routeIs('project.index') ? 'active' : '' }}" href="{{ route('project.index') }}">Search</a></li>
+                        <li><a class="dropdown-item {{ Request::routeIs('project.create') ? 'active' : '' }}" href="{{ route('project.create') }}">Create</a></li>
+                    </ul>
+                </li>
+
+                <!-- Task Management -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle {{ Request::routeIs('task.*') ? 'active' : '' }}" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                    Task management
+                    </a>
+                    <ul class="dropdown-menu">
+                        <!-- <li><a class="dropdown-item {{ Request::routeIs('task.index') ? 'active' : '' }}" href="{{ route('task.index') }}">Search</a></li> -->
+                        <li><a class="dropdown-item {{ Request::routeIs('task.create') ? 'active' : '' }}" href="{{ route('task.create') }}">Create</a></li>
+                    </ul>
+                </li>
+
                 <!-- Logout -->
                 <li class="nav-item">
                     <a class="nav-link" href="{{ route('auth.logout') }}">Logout</a>
