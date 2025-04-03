@@ -48,6 +48,9 @@ Route::middleware([
     Route::post('update/{id}', [ProjectController::class, 'update'])->name('project.update');
     Route::post('create', [ProjectController::class, 'create'])->name('project.create');
     Route::post('delete/{id}', [ProjectController::class, 'delete'])->name('project.delete');
+    Route::post('/add-employees/{id}', [ProjectController::class, 'addEmployees'])
+        ->name('project.addEmployees');
+
 });
 
 //task crud route
@@ -57,8 +60,11 @@ Route::middleware([
     TimeoutMiddleware::class
 ])->prefix("task")->group(function () {
     Route::post('update/{id}', [TaskController::class, 'update'])->name('task.update');
-    Route::post('create', [TaskController::class, 'create'])->name('task.create');
+    Route::post('create/{projectId?}', [TaskController::class, 'create'])->name('task.create');
+    // Route::post('create/{projectId}', [TaskController::class, 'createAndRedirectToProjectDetails'])->name('task.createToProject');
     Route::post('delete/{id}', [TaskController::class, 'delete'])->name('task.delete');
+    Route::post('/add-employees/{id}', [TaskController::class, 'addEmployees'])
+        ->name('task.addEmployees');
 });
 
 //team get template
@@ -70,6 +76,7 @@ Route::middleware([
     Route::get('', [TeamController::class, 'index'])->name('team.index');
 
     Route::get('edit/{id}', [TeamController::class, 'edit'])->name('team.edit');
+    Route::get('show/{id}', [TeamController::class, 'show'])->name('team.show');
     Route::post('updateConfirm/{id}', [TeamController::class, 'updateConfirm'])->name('team.updateConfirm');
     Route::get('updateConfirm/{id}', [TeamController::class, 'showUpdateConfirm'])->name('team.updateConfirm');
 
@@ -86,6 +93,7 @@ Route::middleware([
 
     Route::get('', [EmployeeController::class, 'index'])->name('employee.index');
 
+    Route::get('show/{id}', [EmployeeController::class, 'show'])->name('employee.show');
     Route::post('updateConfirm/{id}', [EmployeeController::class, 'updateConfirm'])->name('employee.updateConfirm');
     Route::get('updateConfirm/{id}', [EmployeeController::class, 'showUpdateConfirm'])->name('employee.updateConfirm');
 
@@ -104,6 +112,8 @@ Route::middleware([
 
     Route::get('edit/{id}', [ProjectController::class, 'edit'])->name('project.edit');
     Route::get('show/{id}', [ProjectController::class, 'show'])->name('project.show');
+    Route::get('add-employees/{id}', [ProjectController::class, 'getAddEmployees'])->name('project.addEmployees');
+    // Route::get('add-task', [ProjectController::class, 'getAddTaskForm'])->name('project.getAddTaskForm');
     Route::post('updateConfirm/{id}', [ProjectController::class, 'updateConfirm'])->name('project.updateConfirm');
     Route::get('updateConfirm/{id}', [ProjectController::class, 'showUpdateConfirm'])->name('project.updateConfirm');
 
@@ -120,12 +130,13 @@ Route::middleware([
     Route::get('', [TaskController::class, 'index'])->name('task.index');
 
     Route::get('edit/{id}', [TaskController::class, 'edit'])->name('task.edit');
-    // Route::get('show/{id}', [TaskController::class, 'show'])->name('task.show');
+    Route::get('show/{id}', [TaskController::class, 'show'])->name('task.show');
+    Route::get('add-employees/{id}', [TaskController::class, 'getAddEmployees'])->name('task.addEmployees');
     Route::post('updateConfirm/{id}', [TaskController::class, 'updateConfirm'])->name('task.updateConfirm');
     Route::get('updateConfirm/{id}', [TaskController::class, 'showUpdateConfirm'])->name('task.updateConfirm');
 
-    Route::get('create', [TaskController::class, 'getCreateForm'])->name('task.create');
-    Route::post('createConfirm', [TaskController::class, 'createConfirm'])->name('task.createConfirm');
+    Route::get('create/{projectId?}', [TaskController::class, 'getCreateForm'])->name('task.create');
+    Route::post('createConfirm{projectId?}', [TaskController::class, 'createConfirm'])->name('task.createConfirm');
     Route::get('createConfirm', [TaskController::class, 'showCreateConfirm'])->name('task.showCreateConfirm');
 });
 

@@ -4,16 +4,24 @@ namespace App\Services\Services;
 
 use App\Http\Requests\TeamCreateRequest;
 use App\Http\Requests\TeamUpdateRequest;
+use App\Services\Interfaces\IEmployeeRepository;
+use App\Services\Interfaces\IProjectRepository;
 use App\Services\Interfaces\ITeamRepository;
+use App\Services\Repository\EmployeeRepository;
+use App\Services\Repository\ProjectRepository;
 use App\Services\Repository\TeamRepository;
 use Exception;
 
 class TeamService
 {
     private TeamRepository $teamRepository;
-    public function __construct(ITeamRepository $teamRepository)
+    private ProjectRepository $projectRepository;
+    private EmployeeRepository $employeeRepository;
+    public function __construct(ITeamRepository $teamRepository, IProjectRepository $projectRepository, IEmployeeRepository $employeeRepository)
     {
         $this->teamRepository = $teamRepository;
+        $this->projectRepository = $projectRepository;
+        $this->employeeRepository = $employeeRepository;
     }
 
     public function findAll()
@@ -51,6 +59,46 @@ class TeamService
 
         return $teams;
     }
+
+    public function searchDetailsWithTeam($teamId, $tab = 'projects', array $request, $sort, $direction)
+    {
+        unset($request['tab']);
+        $filtered = array_filter(
+            $request,
+            fn($value) => $value !== "" && $value !== null && $value != 0
+        );
+        $data = $this->projectRepository->findAllWithTeamPaging(ITEM_PER_PAGE, $teamId);
+        if ($tab === 'projects') {
+            if (!empty($filtered)) { // Call service when search data is not empty
+                // dd($filtered);
+                $data = $this->projectRepository->searchWithTeam(
+                    ITEM_PER_PAGE,
+                    $teamId,
+                    $filtered,
+                    $sort,
+                    $direction
+                );
+            }
+        }
+        // dd($tab === 'employees');
+        if ($tab === 'employees') {
+            $data = $this->employeeRepository->findAllWithTeamPaging(ITEM_PER_PAGE, $teamId);
+
+            if (!empty($filtered)) { // Call service when search data is not empty
+                // dd($filtered);
+
+                $data = $this->employeeRepository->searchWithTeam(
+                    ITEM_PER_PAGE,
+                    $teamId,
+                    $filtered,
+                    $sort,
+                    $direction
+                );
+            }
+        }
+        return $data;
+    }
+
     public function create(array $request)
     {
         $result = $this->teamRepository->create($request);

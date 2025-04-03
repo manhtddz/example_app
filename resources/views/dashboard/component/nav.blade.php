@@ -8,45 +8,57 @@
             <ul class="navbar-nav ms-auto">
                 <!-- Team Management -->
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle {{ Request::routeIs('team.*') ? 'active' : '' }}" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                    <a class="nav-link dropdown-toggle {{ Request::routeIs('team.*') ? 'active' : '' }}" href="#"
+                        id="navbarDropdown" role="button" data-bs-toggle="dropdown">
                         Team management
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item {{ Request::routeIs('team.index') ? 'active' : '' }}" href="{{ route('team.index') }}">Search</a></li>
-                        <li><a class="dropdown-item {{ Request::routeIs('team.create') ? 'active' : '' }}" href="{{ route('team.create') }}">Create</a></li>
+                        <li><a class="dropdown-item {{ Request::routeIs('team.index') ? 'active' : '' }}"
+                                href="{{ route('team.index') }}">Search</a></li>
+                        <li><a class="dropdown-item {{ Request::routeIs('team.create') ? 'active' : '' }}"
+                                href="{{ route('team.create') }}">Create</a></li>
                     </ul>
                 </li>
 
                 <!-- Employee Management -->
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle {{ Request::routeIs('employee.*') ? 'active' : '' }}" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                    <a class="nav-link dropdown-toggle {{ Request::routeIs('employee.*') ? 'active' : '' }}" href="#"
+                        id="navbarDropdown" role="button" data-bs-toggle="dropdown">
                         Employee management
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item {{ Request::routeIs('employee.index') ? 'active' : '' }}" href="{{ route('employee.index') }}">Search</a></li>
-                        <li><a class="dropdown-item {{ Request::routeIs('employee.create') ? 'active' : '' }}" href="{{ route('employee.create') }}">Create</a></li>
+                        <li><a class="dropdown-item {{ Request::routeIs('employee.index') ? 'active' : '' }}"
+                                href="{{ route('employee.index') }}">Search</a></li>
+                        <li><a class="dropdown-item {{ Request::routeIs('employee.create') ? 'active' : '' }}"
+                                href="{{ route('employee.create') }}">Create</a></li>
                     </ul>
                 </li>
 
                 <!-- Project Management -->
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle {{ Request::routeIs('project.*') ? 'active' : '' }}" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
-                    Project management
+                    <a class="nav-link dropdown-toggle {{ Request::routeIs('project.*') ? 'active' : '' }}" href="#"
+                        id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                        Project management
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item {{ Request::routeIs('project.index') ? 'active' : '' }}" href="{{ route('project.index') }}">Search</a></li>
-                        <li><a class="dropdown-item {{ Request::routeIs('project.create') ? 'active' : '' }}" href="{{ route('project.create') }}">Create</a></li>
+                        <li><a class="dropdown-item {{ Request::routeIs('project.index') ? 'active' : '' }}"
+                                href="{{ route('project.index') }}">Search</a></li>
+                        <li><a class="dropdown-item {{ Request::routeIs('project.create') ? 'active' : '' }}"
+                                href="{{ route('project.create') }}">Create</a></li>
                     </ul>
                 </li>
 
                 <!-- Task Management -->
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle {{ Request::routeIs('task.*') ? 'active' : '' }}" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
-                    Task management
+                    <a class="nav-link dropdown-toggle {{ Request::routeIs('task.*') ? 'active' : '' }}" href="#"
+                        id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                        Task management
                     </a>
                     <ul class="dropdown-menu">
-                        <!-- <li><a class="dropdown-item {{ Request::routeIs('task.index') ? 'active' : '' }}" href="{{ route('task.index') }}">Search</a></li> -->
-                        <li><a class="dropdown-item {{ Request::routeIs('task.create') ? 'active' : '' }}" href="{{ route('task.create') }}">Create</a></li>
+                        <li><a class="dropdown-item {{ Request::routeIs('task.index') ? 'active' : '' }}"
+                                href="{{ route('task.index') }}">Search</a></li>
+                        <li><a class="dropdown-item {{ Request::routeIs('task.create') ? 'active' : '' }}"
+                                href="{{ route('task.create') }}">Create</a></li>
                     </ul>
                 </li>
 

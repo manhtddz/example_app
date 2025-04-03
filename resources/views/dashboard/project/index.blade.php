@@ -10,6 +10,10 @@
             {{ session(SESSION_SUCCESS) }}
         </div>
     @endif
+    @php
+        $sortBy = request()->query('sortBy', 'id'); // Default sort by id
+        $direction = request()->query('direction', 'asc'); //asc default 
+    @endphp
     <!-- Search Form -->
     <form action="{{ route('project.index') }}" method="GET" class="mb-3">
         <div class="col-md-4">
@@ -39,12 +43,24 @@
         <table class="table table-bordered">
             <thead class="table-dark">
                 <tr>
-                    <th><a href="{{ request()->fullUrlWithQuery(['sortBy' => 'id', 'direction' => $direction === "asc" ? "desc" : "asc"]) }}"
-                            class="text-white">ID ↕</a></th>
-                    <th><a href="{{ request()->fullUrlWithQuery(['sortBy' => 'team_id', 'direction' => $direction === "asc" ? "desc" : "asc"]) }}"
-                            class="text-white">Team ↕</a></th>
-                    <th><a href="{{ request()->fullUrlWithQuery(['sortBy' => 'name', 'direction' => $direction === "asc" ? "desc" : "asc"]) }}"
-                            class="text-white">Name ↕</a></th>
+                    <th>
+                        <a href="{{ request()->fullUrlWithQuery(['sortBy' => 'id', 'direction' => ($sortBy === 'id' && $direction === 'asc') ? 'desc' : 'asc']) }}"
+                            class="text-white">
+                            ID {!! $sortBy === 'id' ? ($direction === 'asc' ? '▲' : '▼') : '' !!}
+                        </a>
+                    </th>
+                    <th>
+                        <a href="{{ request()->fullUrlWithQuery(['sortBy' => 'team_id', 'direction' => ($sortBy === 'team_id' && $direction === 'asc') ? 'desc' : 'asc']) }}"
+                            class="text-white">
+                            Team {!! $sortBy === 'team_id' ? ($direction === 'asc' ? '▲' : '▼') : '' !!}
+                        </a>
+                    </th>
+                    <th>
+                        <a href="{{ request()->fullUrlWithQuery(['sortBy' => 'name', 'direction' => ($sortBy === 'name' && $direction === 'asc') ? 'desc' : 'asc']) }}"
+                            class="text-white">
+                            Name {!! $sortBy === 'name' ? ($direction === 'asc' ? '▲' : '▼') : '' !!}
+                        </a>
+                    </th>
                     <th>Action</th>
                 </tr>
             </thead>

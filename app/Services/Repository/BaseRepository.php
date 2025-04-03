@@ -6,6 +6,8 @@ use App\Models\Employee;
 use App\Models\Team;
 use App\Services\Interfaces\IRepository;
 use Exception;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 
 abstract class BaseRepository implements IRepository
 {
@@ -20,7 +22,7 @@ abstract class BaseRepository implements IRepository
         try {
             return $this->model::find($id);
         } catch (Exception $e) {
-            \Log::info($e->getMessage());
+            Log::info($e->getMessage());
             return null;
         }
     }
@@ -29,7 +31,7 @@ abstract class BaseRepository implements IRepository
         try {
             return $this->model::all();
         } catch (Exception $e) {
-            \Log::info($e->getMessage());
+            Log::info($e->getMessage());
             return null;
         }
     }
@@ -38,7 +40,7 @@ abstract class BaseRepository implements IRepository
         try {
             return $this->model::paginate($amount);
         } catch (Exception $e) {
-            \Log::info($e->getMessage());
+            Log::info($e->getMessage());
             return null;
         }
     }
@@ -48,7 +50,7 @@ abstract class BaseRepository implements IRepository
             unset($requestData['_token']);
             return $this->model::create($requestData);
         } catch (Exception $e) {
-            \Log::info($e->getMessage());
+            Log::info($e->getMessage());
             return null;
         }
     }
@@ -59,7 +61,7 @@ abstract class BaseRepository implements IRepository
             unset($requestData['_token']);
             return $item->update($requestData);
         } catch (Exception $e) {
-            \Log::info($e->getMessage());
+            Log::info($e->getMessage());
             return null;
         }
     }
@@ -69,7 +71,7 @@ abstract class BaseRepository implements IRepository
             $item = $this->model::findOrFail($id);
             return $item->delete();
         } catch (Exception $e) {
-            \Log::info($e->getMessage());
+            Log::info($e->getMessage());
             return null;
         }
     }
@@ -80,7 +82,7 @@ abstract class BaseRepository implements IRepository
                 $requestData,
                 fn($value) => $value !== null && $value !== ''
             );
-            $columns = \Schema::getColumnListing((new $this->model())->getTable()); // Take column list
+            $columns = Schema::getColumnListing((new $this->model())->getTable()); // Take column list
             $query = $this->model::query();
             foreach ($filters as $key => $value) {
                 if ($key === 'name') {
@@ -102,15 +104,15 @@ abstract class BaseRepository implements IRepository
 
             if ($sort === 'name' && $this->model === Employee::class) {
                 $query->orderByName($direction);
-            } else {
-                if ($sort && in_array(strtolower($sort), $columns)) {
-                    $query->orderBy($sort, strtolower($direction));
-                }
             }
+            if ($sort && in_array(strtolower($sort), $columns)) {
+                $query->orderBy($sort, strtolower($direction));
+            }
+
             return $query->paginate($amount);
 
         } catch (Exception $e) {
-            \Log::info($e->getMessage());
+            Log::info($e->getMessage());
             return null;
         }
 

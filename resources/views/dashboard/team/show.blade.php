@@ -3,7 +3,7 @@ use App\Const\TaskStatus;
 // dd($data);
 ?>
 <div class="container mt-5">
-    <h2 class="mb-4">Project - Details</h2>
+    <h2 class="mb-4">Team - Details</h2>
 
     <!-- Session Messages -->
     @if (session(SESSION_ERROR))
@@ -16,21 +16,20 @@ use App\Const\TaskStatus;
         $sortBy = request()->query('sortBy', 'id'); // Default sort by id
         $direction = request()->query('direction', 'asc'); //asc default 
     @endphp
-    <p><strong>ID:</strong> {{ $project->id }}</p>
-    <p><strong>Project Name:</strong> {{ $project->name }}</p>
-    <p><strong>Team:</strong> {{ $project->team->name }}</p>
+    <p><strong>ID:</strong> {{ $team->id }}</p>
+    <p><strong>Team Name:</strong> {{ $team->name }}</p>
 
     <!-- Tabs Navigation -->
-    <ul class="nav nav-tabs mt-3" id="projectTabs">
+    <ul class="nav nav-tabs mt-3" id="teamTabs">
         <li class="nav-item">
-            <a class="nav-link {{ request()->query('tab', 'tasks') == 'tasks' ? 'active' : '' }}"
-                href="{{ route('project.show', ['id' => $id, 'tab' => 'tasks']) }}">
-                Tasks
+            <a class="nav-link {{ request()->query('tab', 'projects') == 'projects' ? 'active' : '' }}"
+                href="{{ route('team.show', ['id' => $id, 'tab' => 'projects']) }}">
+                Projects
             </a>
         </li>
         <li class="nav-item">
             <a class="nav-link {{ request()->query('tab') == 'employees' ? 'active' : '' }}"
-                href="{{ route('project.show', ['id' => $id, 'tab' => 'employees']) }}">
+                href="{{ route('team.show', ['id' => $id, 'tab' => 'employees']) }}">
                 Employees
             </a>
         </li>
@@ -38,37 +37,24 @@ use App\Const\TaskStatus;
 
     <!-- Tabs Content -->
     <div class="tab-content mt-3">
-        <!-- Tasks Tab -->
-        <div class="tab-pane fade {{ request()->query('tab', 'tasks') == 'tasks' ? 'show active' : '' }}" id="tasks">
+        <!-- Projects Tab -->
+        <div class="tab-pane fade {{ request()->query('tab', 'projects') == 'projects' ? 'show active' : '' }}"
+            id="projects">
             <div class="card p-3 mb-3">
-                <form action="{{ route('project.show', $id) }}" method="GET">
-                    <input type="hidden" name="tab" value="tasks"> <!-- Giữ tab khi submit -->
+                <form action="{{ route('team.show', $id) }}" method="GET">
+                    <input type="hidden" name="tab" value="projects"> <!-- Giữ tab khi submit -->
                     <div class="mb-2">
-                        <label for="name" class="form-label">Task Name:</label>
+                        <label for="name" class="form-label">Project Name:</label>
                         <input type="text" class="form-control form-control-sm" id="name" name="name"
-                            placeholder="Task Name" value="{{ request()->query('name') }}">
-                    </div>
-                    <div class="mb-2">
-                        <label class="form-label">Task Status:</label><br>
-                        @php $statusOptions = TaskStatus::LIST; @endphp
-                        @foreach ($statusOptions as $value => $label)
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="task_status" id="status_{{ $value }}"
-                                    value="{{ $value }}" {{ request()->query('task_status') == $value ? 'checked' : '' }}>
-                                <label class="form-check-label" for="status_{{ $value }}">{{ $label }}</label>
-                            </div>
-                        @endforeach
+                            placeholder="Project Name" value="{{ request()->query('name') }}">
                     </div>
                     <div class="d-flex justify-content-between mt-2">
                         <button type="submit" class="btn btn-primary btn-sm">Search</button>
-                        <a href="{{ route('project.show', ['id' => $id, 'tab' => 'tasks']) }}"
+                        <a href="{{ route('team.show', ['id' => $id, 'tab' => 'projects']) }}"
                             class="btn btn-secondary btn-sm">Reset</a>
                     </div>
                 </form>
             </div>
-
-            <a href="{{ route('task.create', $project->id) }}" class="btn btn-primary btn-sm">Create Task</a>
-            <!-- form bo di -->
             @if($data->isNotEmpty())
                 <table class="table table-bordered table-sm">
                     <thead class="table-dark">
@@ -79,32 +65,23 @@ use App\Const\TaskStatus;
                                     ID {!! $sortBy === 'id' ? ($direction === 'asc' ? '▲' : '▼') : '' !!}
                                 </a>
                             </th>
-
                             <th>
                                 <a href="{{ request()->fullUrlWithQuery(['sortBy' => 'name', 'direction' => ($sortBy === 'name' && $direction === 'asc') ? 'desc' : 'asc']) }}"
                                     class="text-white">
                                     Name {!! $sortBy === 'name' ? ($direction === 'asc' ? '▲' : '▼') : '' !!}
                                 </a>
                             </th>
-
-                            <th>
-                                <a href="{{ request()->fullUrlWithQuery(['sortBy' => 'task_status', 'direction' => ($sortBy === 'task_status' && $direction === 'asc') ? 'desc' : 'asc']) }}"
-                                    class="text-white">
-                                    Status {!! $sortBy === 'task_status' ? ($direction === 'asc' ? '▲' : '▼') : '' !!}
-                                </a>
-                            </th>
                             <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($data as $task)
+                        @foreach($data as $project)
                             <tr>
-                                <td>{{ $task->id }}</td>
-                                <td>{{ $task->name }}</td>
-                                <td>{{ TaskStatus::getName($task->task_status) }}</td>
+                                <td>{{ $project->id }}</td>
+                                <td>{{ $project->name }}</td>
                                 <td>
-                                    <a href="{{ route('task.edit', $task->id) }}" class="btn btn-warning btn-sm">Edit</a>
-                                    <form method="POST" action="{{ route('task.delete', $task->id) }}"
+                                    <a href="{{ route('project.edit', $project->id) }}" class="btn btn-warning btn-sm">Edit</a>
+                                    <form method="POST" action="{{ route('project.delete', $project->id) }}"
                                         style="display:inline-block;">
                                         @csrf
                                         <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal"
@@ -124,7 +101,6 @@ use App\Const\TaskStatus;
                         <tr>
                             <th>ID</th>
                             <th>Name</th>
-                            <th>Status</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -139,7 +115,7 @@ use App\Const\TaskStatus;
         <!-- Employees Tab -->
         <div class="tab-pane fade {{ request()->query('tab') == 'employees' ? 'show active' : '' }}" id="employees">
             <div class="card p-3 mb-3">
-                <form action="{{ route('project.show', $id) }}" method="GET">
+                <form action="{{ route('team.show', $id) }}" method="GET">
                     <input type="hidden" name="tab" value="employees"> <!-- Giữ tab khi submit -->
                     <div class="mb-2">
                         <label for="name" class="form-label">Employee Name:</label>
@@ -148,18 +124,16 @@ use App\Const\TaskStatus;
                     </div>
                     <div class="mb-2">
                         <label for="email" class="form-label">Email:</label>
-                        <input type="text" class="form-control form-control-sm" id="email" name="email"
-                            placeholder="Email" value="{{ request()->query('email') }}">
+                        <input type="text" class="form-control" id="email" name="email" placeholder="Email"
+                            value="{{ request()->query('email') }}">
                     </div>
                     <div class="d-flex justify-content-between mt-2">
                         <button type="submit" class="btn btn-primary btn-sm">Search</button>
-                        <a href="{{ route('project.show', ['id' => $id, 'tab' => 'employees']) }}"
+                        <a href="{{ route('team.show', ['id' => $id, 'tab' => 'employees']) }}"
                             class="btn btn-secondary btn-sm">Reset</a>
                     </div>
                 </form>
             </div>
-            <a href="{{ route('project.addEmployees', $project->id) }}" class="btn btn-primary btn-sm">Add Employee</a>
-
             @if($data->isNotEmpty())
                 <table class="table table-bordered table-sm">
                     <thead class="table-dark">
@@ -172,13 +146,13 @@ use App\Const\TaskStatus;
                             </th>
                             <th>Avatar</th>
                             <th>
-                                <a href="{{ request()->fullUrlWithQuery(['sortBy' => 'name', 'direction' => ($sortBy === 'id' && $direction === 'asc') ? 'desc' : 'asc']) }}"
+                                <a href="{{ request()->fullUrlWithQuery(['sortBy' => 'name', 'direction' => ($sortBy === 'name' && $direction === 'asc') ? 'desc' : 'asc']) }}"
                                     class="text-white">
                                     Name {!! $sortBy === 'name' ? ($direction === 'asc' ? '▲' : '▼') : '' !!}
                                 </a>
                             </th>
                             <th>
-                                <a href="{{ request()->fullUrlWithQuery(['sortBy' => 'email', 'direction' => ($sortBy === 'id' && $direction === 'asc') ? 'desc' : 'asc']) }}"
+                                <a href="{{ request()->fullUrlWithQuery(['sortBy' => 'email', 'direction' => ($sortBy === 'email' && $direction === 'asc') ? 'desc' : 'asc']) }}"
                                     class="text-white">
                                     Email {!! $sortBy === 'email' ? ($direction === 'asc' ? '▲' : '▼') : '' !!}
                                 </a>

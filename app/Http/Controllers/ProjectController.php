@@ -5,23 +5,31 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ProjectCreateRequest;
 use App\Http\Requests\ProjectUpdateRequest;
+use App\Models\Employee;
+use App\Models\EmployeeProject;
+use App\Models\Project;
+use App\Services\Services\EmployeeService;
 use App\Services\Services\ProjectService;
 use App\Services\Services\TaskService;
 use App\Services\Services\TeamService;
-use Auth;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+
 
 class ProjectController extends Controller
 {
     private ProjectService $projectService;
     private TeamService $teamService;
     private TaskService $taskService;
-    public function __construct(ProjectService $projectService, TeamService $teamService, TaskService $taskService)
+    private EmployeeService $employeeService;
+    public function __construct(ProjectService $projectService, TeamService $teamService, TaskService $taskService, EmployeeService $employeeService)
     {
         $this->projectService = $projectService;
         $this->teamService = $teamService;
         $this->taskService = $taskService;
+        $this->employeeService = $employeeService;
     }
     public function index(Request $request)
     {
@@ -42,23 +50,33 @@ class ProjectController extends Controller
     }
     public function show(Request $request, $id)
     {
-        $sortBy = $request->input('sortBy');
-        $direction = $request->input('direction', 'asc');
-        $project = $this->projectService->findById($id);
-        $tasks = $this->taskService->search(
-            $id,
-            $request->all(),
-            $sortBy,
-            $direction
-        );
-        $config = $this->config();
+        // dd($request->input('tab'));
+        try {
+            $sortBy = $request->input('sortBy');
+            $direction = $request->input('direction', 'asc');
+            $project = $this->projectService->findById($id);
+            $data = $this->projectService->searchDetailsWithProject(
+                $id,
+                $request->input('tab'),
+                $request->all(),
+                $sortBy,
+                $direction
+            );
+            $config = $this->config();
 
-        $config['template'] = "dashboard.project.show";
+            $config['template'] = "dashboard.project.show";
 
-        return view(
-            'dashboard.layout',
-            compact(['config', 'project', 'direction', 'tasks', 'id'])
-        );
+            return view(
+                'dashboard.layout',
+                compact(['config', 'project', 'direction', 'id', 'data'])
+            );
+        } catch (Exception $e) {
+            Log::info($e->getMessage(), [
+                'action' => __METHOD__,
+                'id' => $id
+            ]);
+            return redirect()->route('project.index')->with(SESSION_ERROR, $e->getMessage());
+        }
     }
     public function edit($id)
     {
@@ -71,7 +89,7 @@ class ProjectController extends Controller
 
             return view('dashboard.layout', compact(['config', 'project', 'teams']));
         } catch (Exception $e) {
-            \Log::info($e->getMessage(), [
+            Log::info($e->getMessage(), [
                 'action' => __METHOD__,
                 'id' => $id
             ]);
@@ -86,6 +104,15 @@ class ProjectController extends Controller
 
         return view('dashboard.layout', compact(['config', 'teams']));
     }
+    // public function getAddTaskForm(Request $request)
+    // {
+    //     $projects = $this->projectService->findAllWithTeamName();
+    //     $projectId = $request->input('project_id');
+    //     $config = $this->config();
+    //     $config['template'] = "dashboard.task.create";
+
+    //     return view('dashboard.layout', compact(['config', 'projects', 'projectId']));
+    // }
 
     public function updateConfirm($id, ProjectUpdateRequest $request)
     {
@@ -135,7 +162,7 @@ class ProjectController extends Controller
             $this->projectService->update($id, $request->all());
             return redirect()->route('project.index')->with(SESSION_SUCCESS, UPDATE_SUCCESS);
         } catch (Exception $e) {
-            \Log::info(
+            Log::info(
                 $e->getMessage(),
                 [
                     'action' => __METHOD__,
@@ -151,7 +178,7 @@ class ProjectController extends Controller
             $this->projectService->create($request->all());
             return redirect()->route('project.index')->with(SESSION_SUCCESS, CREATE_SUCCESS);
         } catch (Exception $e) {
-            \Log::info(
+            Log::info(
                 $e->getMessage(),
                 [
                     'action' => __METHOD__,
@@ -168,7 +195,7 @@ class ProjectController extends Controller
             $this->projectService->delete($id);
             return redirect()->route('project.index')->with(SESSION_SUCCESS, DELETE_SUCCESS);
         } catch (Exception $e) {
-            \Log::info(
+            Log::info(
                 $e->getMessage(),
                 [
                     'action' => __METHOD__,
@@ -178,6 +205,64 @@ class ProjectController extends Controller
             return redirect()->route('project.index')->with(SESSION_ERROR, $e->getMessage());
         }
     }
+
+    public function getAddEmployees(Request $request, $id)
+    {
+        try {
+            $sortBy = $request->input('sortBy');
+            $direction = $request->input('direction', 'asc');
+            $project = $this->projectService->findById($id);
+            $employees = $this->employeeService
+                ->searchWithTeamPaging($project->team->id, $request->all(), $sortBy, $direction);
+            $selectedEmployees = $this->employeeService
+                ->findAllWithProject($project->id)->toArray();
+            $config = $this->config();
+
+            $config['template'] = "dashboard.project.add_employees";
+
+            return view(
+                'dashboard.layout',
+                compact(['config', 'project', 'direction', 'id', 'employees', 'selectedEmployees'])
+            );
+        } catch (Exception $e) {
+            Log::info(
+                $e->getMessage(),
+                [
+                    'action' => __METHOD__,
+                    'id' => $id
+                ]
+            );
+            return redirect()->route('project.index')->with(SESSION_ERROR, $e->getMessage());
+        }
+    }
+
+    public function addEmployees(Request $request, $projectId)
+    {
+        try {
+            $project = $this->projectService->findById($projectId);
+
+            $data = $this->projectService->getSelectData($request);
+            $this->projectService->addEmployeesToProject($data['newData'], $projectId);
+            $this->projectService->removeEmployeesFromProject($data['unsetData'], $projectId);
+
+            return back()->with(SESSION_SUCCESS, 'Employees added successfully!');
+        } catch (Exception $e) {
+            Log::info(
+                $e->getMessage(),
+                [
+                    'action' => __METHOD__,
+                    'id' => $projectId
+                ]
+            );
+
+            if (in_array($e->getMessage(), [NOT_EXIST_ERROR, WRONG_FORMAT_ID])) {
+                return redirect()->route('project.index')->with(SESSION_ERROR, $e->getMessage());
+            }
+
+            return back()->with(SESSION_ERROR, $e->getMessage());
+        }
+    }
+
 
     public function config()
     {

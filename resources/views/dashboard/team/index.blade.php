@@ -1,3 +1,7 @@
+@php
+    use App\Models\Employee;
+    $projectId = 1;
+@endphp
 <div class="container mt-5">
     <h2 class="mb-4">Team - Search</h2>
     @if (session(SESSION_ERROR))
@@ -10,6 +14,10 @@
             {{ session(SESSION_SUCCESS) }}
         </div>
     @endif
+    @php
+        $sortBy = request()->query('sortBy', 'id'); // Default sort by id
+        $direction = request()->query('direction', 'asc'); //asc default 
+    @endphp
     <!-- Search form -->
     <form action="{{ route('team.index') }}" method="GET" class="mb-3">
         <div class="col-md-4">
@@ -31,10 +39,18 @@
         <table class="table table-bordered">
             <thead class="table-dark">
                 <tr>
-                    <th><a href="{{ request()->fullUrlWithQuery(['sortBy' => 'id', 'direction' => $direction === "asc" ? "desc" : "asc"]) }}"
-                            class="text-white">ID ↕</a></th>
-                    <th><a href="{{ request()->fullUrlWithQuery(['sortBy' => 'name', 'direction' => $direction === "asc" ? "desc" : "asc"]) }}"
-                            class="text-white">Team ↕</a></th>
+                    <th>
+                        <a href="{{ request()->fullUrlWithQuery(['sortBy' => 'id', 'direction' => ($sortBy === 'id' && $direction === 'asc') ? 'desc' : 'asc']) }}"
+                            class="text-white">
+                            ID {!! $sortBy === 'id' ? ($direction === 'asc' ? '▲' : '▼') : '' !!}
+                        </a>
+                    </th>
+                    <th>
+                        <a href="{{ request()->fullUrlWithQuery(['sortBy' => 'name', 'direction' => ($sortBy === 'name' && $direction === 'asc') ? 'desc' : 'asc']) }}"
+                            class="text-white">
+                            Name {!! $sortBy === 'name' ? ($direction === 'asc' ? '▲' : '▼') : '' !!}
+                        </a>
+                    </th>
                     <th>Action</th>
                 </tr>
             </thead>
@@ -44,6 +60,7 @@
                     <td>{{ $team->name }}</td>
                     <td>
                         <a href="{{ route('team.edit', $team->id) }}" class="btn btn-warning btn-sm">Edit</a>
+                        <a href="{{ route('team.show', $team->id) }}" class="btn btn-primary btn-sm">Details</a>
                         <form method="POST" action="{{ route('team.delete', $team->id) }}" style="display:inline-block;">
                             @csrf
                             <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal"

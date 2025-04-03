@@ -5,9 +5,8 @@ use App\Const\TaskStatus;
 
 <div class="container mt-4">
     <div class="card p-4">
-        <h4 class="mb-3">Task - Create confirm</h4>
-
-        <form action="{{ route('task.create', $projectId ?? null) }}" method="POST">
+        <h4 class="mb-3">Task - Update confirm</h4>
+        <form action="{{ route('task.update', $id) }}" method="POST">
             @csrf
             <div class="mb-3">
                 <label class="form-label"><strong>Project:</strong></label>
@@ -40,7 +39,7 @@ use App\Const\TaskStatus;
                 <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#confirmModal">
                     Save
                 </button>
-                <a href="{{ route('task.create') }}" class="btn btn-secondary">Cancel</a>
+                <a href="{{ route('task.edit', $id) }}" class="btn btn-secondary">Cancel</a>
             </div>
             @include('dashboard.component.confirm-modal')
 

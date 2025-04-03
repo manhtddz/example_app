@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Http\Requests\TeamCreateRequest;
 use App\Http\Requests\TeamUpdateRequest;
 use App\Services\Services\TeamService;
-use Auth;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+
 
 class TeamController extends Controller
 {
@@ -32,6 +34,28 @@ class TeamController extends Controller
             compact(['config', 'teams', 'direction'])
         );
     }
+    public function show(Request $request, $id)
+    {
+        // dd($request->input('tab'));
+        $sortBy = $request->input('sortBy');
+        $direction = $request->input('direction', 'asc');
+        $team = $this->teamService->findById($id);
+        $data = $this->teamService->searchDetailsWithTeam(
+            $id,
+            $request->input('tab'),
+            $request->all(),
+            $sortBy,
+            $direction
+        );
+        $config = $this->config();
+
+        $config['template'] = "dashboard.team.show";
+
+        return view(
+            'dashboard.layout',
+            compact(['config', 'team', 'direction', 'id', 'data'])
+        );
+    }
     public function edit($id)
     {
         try {
@@ -42,7 +66,7 @@ class TeamController extends Controller
 
             return view('dashboard.layout', compact(['config', 'team']));
         } catch (Exception $e) {
-            \Log::info($e->getMessage(), [
+            Log::info($e->getMessage(), [
                 'action' => __METHOD__,
                 'id' => $id
             ]);
@@ -105,7 +129,7 @@ class TeamController extends Controller
             $this->teamService->update($id, $request->all());
             return redirect()->route('team.index')->with(SESSION_SUCCESS, UPDATE_SUCCESS);
         } catch (Exception $e) {
-            \Log::info(
+            Log::info(
                 $e->getMessage(),
                 [
                     'action' => __METHOD__,
@@ -121,7 +145,7 @@ class TeamController extends Controller
             $this->teamService->create($request->all());
             return redirect()->route('team.index')->with(SESSION_SUCCESS, CREATE_SUCCESS);
         } catch (Exception $e) {
-            \Log::info(
+            Log::info(
                 $e->getMessage(),
                 [
                     'action' => __METHOD__,
@@ -138,7 +162,7 @@ class TeamController extends Controller
             $this->teamService->delete($id);
             return redirect()->route('team.index')->with(SESSION_SUCCESS, DELETE_SUCCESS);
         } catch (Exception $e) {
-            \Log::info(
+            Log::info(
                 $e->getMessage(),
                 [
                     'action' => __METHOD__,

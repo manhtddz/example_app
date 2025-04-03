@@ -2,17 +2,20 @@
 
 namespace App\Services\Services;
 
-
+use App\Services\Interfaces\IEmployeeRepository;
 use App\Services\Interfaces\ITaskRepository;
+use App\Services\Repository\EmployeeRepository;
 use App\Services\Repository\TaskRepository;
 use Exception;
 
 class TaskService
 {
     private TaskRepository $taskRepository;
-    public function __construct(ITaskRepository $taskRepository)
+    private EmployeeRepository $employeeRepository;
+    public function __construct(ITaskRepository $taskRepository, IEmployeeRepository $employeeRepository)
     {
         $this->taskRepository = $taskRepository;
+        $this->employeeRepository = $employeeRepository;
     }
 
     public function findAll()
@@ -34,7 +37,27 @@ class TaskService
         }
         return $task;
     }
-    public function search($taskId, array $request, $sort, $direction)
+    public function searchDetailsWithTask($taskId, $request, $sort, $direction)
+    {
+        $filtered = array_filter(
+            $request,
+            fn($value) => $value !== "" && $value !== null && $value != 0
+        );
+        $data = $this->employeeRepository->findAllWithTaskPaging(ITEM_PER_PAGE, $taskId);
+        if (!empty($filtered)) { // Call service when search data is not empty
+            // dd($filtered);
+            $data = $this->employeeRepository->searchWithTask(
+                ITEM_PER_PAGE,
+                $taskId,
+                $filtered,
+                $sort,
+                $direction
+            );
+        }
+
+        return $data;
+    }
+    public function search(array $request, $sort, $direction)
     {
         $filtered = array_filter(
             $request,
@@ -45,9 +68,8 @@ class TaskService
 
         if (!empty($filtered)) { // Call service when search data is not empty
             $tasks = $this->taskRepository
-                ->searchByProject(
+                ->search(
                     ITEM_PER_PAGE,
-                    $taskId,
                     $filtered,
                     $sort,
                     $direction
@@ -104,5 +126,40 @@ class TaskService
         $validatedData = $request->validated();
 
         session()->flash('task_data', $validatedData);
+    }
+    public function getSelectData($request)
+    {
+        $selectedEmployees = $request->input('selectedEmployees') ?? [];
+        $selectEmployees = $request->input('selectEmployees') ?? [];
+
+        $unsetData = array_unique($selectedEmployees);
+        $unsetData = array_diff($unsetData, $selectEmployees);
+
+        $newData = array_unique($selectEmployees);
+        $newData = array_diff($newData, $selectedEmployees);
+
+        return [
+            'unsetData' => $unsetData,
+            'newData' => $newData
+        ];
+    }
+
+    public function addEmployeesToProject(array $data, $taskId)
+    {
+        foreach ($data as $employeeId) {
+            $result = $this->taskRepository->createRelationWithEmployee($taskId, $employeeId);
+            if (!$result) {
+                throw new Exception(CREATE_FAILED);
+            }
+        }
+    }
+    public function removeEmployeesFromProject(array $data, $taskId)
+    {
+        foreach ($data as $employeeId) {
+            $result = $this->taskRepository->deleteRelationWithEmployee($taskId, $employeeId);
+            if (!$result) {
+                throw new Exception(DELETE_FAILED);
+            }
+        }
     }
 }

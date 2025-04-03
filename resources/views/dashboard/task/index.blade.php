@@ -1,5 +1,8 @@
+<?php
+use App\Const\TaskStatus;
+?>
 <div class="container mt-5">
-    <h2 class="mb-4">Employee - Search</h2>
+    <h2 class="mb-4">Task - Search</h2>
     @if (session(SESSION_ERROR))
         <div class="alert alert-danger">
             {{ session(SESSION_ERROR) }}
@@ -15,44 +18,41 @@
         $direction = request()->query('direction', 'asc'); //asc default 
     @endphp
     <!-- Search Form -->
-    <form action="{{ route('employee.index') }}" method="GET" class="mb-3">
+    <form action="{{ route('task.index') }}" method="GET" class="mb-3">
         <div class="col-md-4">
             <label for="name" class="form-label">Name:</label>
             <input type="text" class="form-control" id="name" name="name" placeholder="Name"
                 value="{{ request()->query('name') }}">
         </div>
-        <div class="col-md-4">
-            <label for="email" class="form-label">Email:</label>
-            <input type="text" class="form-control" id="email" name="email" placeholder="Email"
-                value="{{ request()->query('email') }}">
-        </div>
-        <label class="form-label" for="team">Team:</label><br>
-        <select class="form-control w-25" id="team" name="team_id">
-            <option value="0" {{ request()->query('team_id') == 0 ? 'selected' : '' }}>{{ '' }}</option>
-            @foreach ($teams as $team)
-                <option value="{{ $team->id }}" {{ request()->query('team_id') == $team->id ? 'selected' : '' }}>
-                    {{ $team->name }}
+        <label class="form-label" for="project">Project:</label><br>
+        <select class="form-control w-25" id="project" name="project_id">
+            <option value="0" {{ request()->query('project_id') == 0 ? 'selected' : '' }}>{{ '' }}</option>
+            @foreach ($projects as $project)
+                <option value="{{ $project->id }}" {{ request()->query('project_id') == $project->id ? 'selected' : '' }}>
+                    {{ $project->name }}
                 </option>
             @endforeach
         </select>
+        <div class="mb-3">
+            <label class="form-label">Task Status:</label><br>
+            @php $statusOptions = TaskStatus::LIST; @endphp
+            @foreach ($statusOptions as $value => $label)
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="task_status" id="status_{{ $value }}"
+                        value="{{ $value }}" {{ request()->query('task_status') == $value ? 'checked' : '' }}>
+                    <label class="form-check-label" for="status_{{ $value }}">{{ $label }}</label>
+                </div>
+            @endforeach
+        </div>
         <div class="d-flex justify-content-between mt-3 w-100">
             <button type="submit" class="btn btn-primary me-2">Search</button>
 
-            <a href="{{ route('employee.index') }}" class="btn btn-secondary">Reset</a>
+            <a href="{{ route('task.index') }}" class="btn btn-secondary">Reset</a>
         </div>
     </form>
     <!-- Search result -->
     <h3>Search result:</h3>
-    @if($employees->isNotEmpty())
-
-        @php
-            $fields = implode(", ", array_map(fn($id) => "{$id}", $employeeIds));
-        @endphp
-        <form method="POST" action="{{ route('employee.export') }}">
-            @csrf
-            <input type="hidden" name="ids" value="{{ $fields }}">
-            <button type="submit" class="btn btn-primary">Export Users</button>
-        </form>
+    @if($tasks->isNotEmpty())
 
         <table class="table table-bordered">
             <thead class="table-dark">
@@ -63,11 +63,10 @@
                             ID {!! $sortBy === 'id' ? ($direction === 'asc' ? '▲' : '▼') : '' !!}
                         </a>
                     </th>
-                    <th>Avatar</th>
                     <th>
-                        <a href="{{ request()->fullUrlWithQuery(['sortBy' => 'team_id', 'direction' => ($sortBy === 'team_id' && $direction === 'asc') ? 'desc' : 'asc']) }}"
+                        <a href="{{ request()->fullUrlWithQuery(['sortBy' => 'project_id', 'direction' => ($sortBy === 'project_id' && $direction === 'asc') ? 'desc' : 'asc']) }}"
                             class="text-white">
-                            Team {!! $sortBy === 'team_id' ? ($direction === 'asc' ? '▲' : '▼') : '' !!}
+                            Project {!! $sortBy === 'project_id' ? ($direction === 'asc' ? '▲' : '▼') : '' !!}
                         </a>
                     </th>
                     <th>
@@ -77,35 +76,30 @@
                         </a>
                     </th>
                     <th>
-                        <a href="{{ request()->fullUrlWithQuery(['sortBy' => 'email', 'direction' => ($sortBy === 'email' && $direction === 'asc') ? 'desc' : 'asc']) }}"
+                        <a href="{{ request()->fullUrlWithQuery(['sortBy' => 'task_status', 'direction' => ($sortBy === 'task_status' && $direction === 'asc') ? 'desc' : 'asc']) }}"
                             class="text-white">
-                            Email {!! $sortBy === 'email' ? ($direction === 'asc' ? '▲' : '▼') : '' !!}
+                            Status {!! $sortBy === 'task_status' ? ($direction === 'asc' ? '▲' : '▼') : '' !!}
                         </a>
                     </th>
                     <th>Action</th>
                 </tr>
             </thead>
-            @foreach($employees as $employee)
+            @foreach($tasks as $task)
                 <tr>
-                    <td>{{ $employee->id }}</td>
+                    <td>{{ $task->id }}</td>
                     <td>
-                        <img src="{{ url(APP_URL . $employee->avatar) }}" width="50" height="50" class="rounded-circle"
-                            title="{{ $employee->avatar ?? NO_AVATAR }}">
+                        {{ $task->project->name }}
                     </td>
                     <td>
-                        {{ $employee->team->name }}
+                        {{ $task->name }}
                     </td>
                     <td>
-                        {{ $employee->name }}
+                        {{ TaskStatus::getName($task->task_status) }}
                     </td>
                     <td>
-                        {{ $employee->email }}
-                    </td>
-                    <td>
-                        <a href="{{ route('employee.edit', $employee->id) }}" class="btn btn-warning btn-sm">Edit</a>
-                        <a href="{{ route('employee.show', $employee->id) }}" class="btn btn-primary btn-sm">Details</a>
-                        <form method="POST" action="{{ route('employee.delete', $employee->id) }}"
-                            style="display:inline-block;">
+                        <a href="{{ route('task.edit', $task->id) }}" class="btn btn-warning btn-sm">Edit</a>
+                        <a href="{{ route('task.show', $task->id) }}" class="btn btn-primary btn-sm">Details</a>
+                        <form method="POST" action="{{ route('task.delete', $task->id) }}" style="display:inline-block;">
                             @csrf
                             <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal"
                                 data-bs-target="#confirmModal">
@@ -118,13 +112,13 @@
             @endforeach
         </table>
 
-        @if ($employees->hasPages())
+        @if ($tasks->hasPages())
 
             <ul class="pagination">
                 {{-- First --}}
-                @if ($employees->currentPage() > 1)
+                @if ($tasks->currentPage() > 1)
                     <li class="page-item">
-                        <a class="page-link" href="{{ $employees->url(1) }}">First</a>
+                        <a class="page-link" href="{{ $tasks->url(1) }}">First</a>
                     </li>
                 @else
                     <li class="page-item disabled">
@@ -133,33 +127,33 @@
                 @endif
 
                 {{-- Prev --}}
-                @if($employees->onFirstPage())
+                @if($tasks->onFirstPage())
                     <li class="page-item disabled">
                         <a class="page-link">Prev</a>
                     </li>
                 @else
                     <li class="page-item">
-                        <a class="page-link" href="{{ $employees->previousPageUrl() }}">Prev</a>
+                        <a class="page-link" href="{{ $tasks->previousPageUrl() }}">Prev</a>
                     </li>
                 @endif
 
                 {{-- Index page --}}
-                @for ($i = 1; $i <= $employees->lastPage(); $i++)
-                    @if ($i == $employees->currentPage())
+                @for ($i = 1; $i <= $tasks->lastPage(); $i++)
+                    @if ($i == $tasks->currentPage())
                         <li class="page-item active">
                             <span class="page-link">{{ $i }}</span>
                         </li>
                     @else
                         <li class="page-item">
-                            <a class="page-link" href="{{ $employees->url($i) }}">{{ $i }}</a>
+                            <a class="page-link" href="{{ $tasks->url($i) }}">{{ $i }}</a>
                         </li>
                     @endif
                 @endfor
 
                 {{-- Next --}}
-                @if ($employees->hasMorePages())
+                @if ($tasks->hasMorePages())
                     <li class="page-item">
-                        <a class="page-link" href="{{ $employees->nextPageUrl() }}">Next</a>
+                        <a class="page-link" href="{{ $tasks->nextPageUrl() }}">Next</a>
                     </li>
                 @else
                     <li class="page-item disabled">
@@ -168,9 +162,9 @@
                 @endif
 
                 {{-- Last --}}
-                @if ($employees->currentPage() < $employees->lastPage())
+                @if ($tasks->currentPage() < $tasks->lastPage())
                     <li class="page-item">
-                        <a class="page-link" href="{{ $employees->url($employees->lastPage()) }}">Last</a>
+                        <a class="page-link" href="{{ $tasks->url($tasks->lastPage()) }}">Last</a>
                     </li>
                 @else
                     <li class="page-item disabled">
@@ -184,10 +178,8 @@
             <thead class="table-dark">
                 <tr>
                     <th>ID</th>
-                    <th>Avatar</th>
                     <th>Team</th>
                     <th>Name</th>
-                    <th>Email</th>
                     <th>Action</th>
                 </tr>
             </thead>

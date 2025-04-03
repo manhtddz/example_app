@@ -7,9 +7,11 @@ use App\Http\Requests\EmployeeUpdateRequest;
 use App\Services\Services\EmployeeService;
 use App\Services\Services\FileService;
 use App\Services\Services\TeamService;
-use Auth;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+
 class EmployeeController extends Controller
 {
     private EmployeeService $employeeService;
@@ -40,6 +42,27 @@ class EmployeeController extends Controller
             compact(['config', 'employees', 'employeeIds', 'teams', "direction"])
         );
     }
+    public function show(Request $request, $id)
+    {
+        // dd($request->input('tab'));
+        $sortBy = $request->input('sortBy');
+        $direction = $request->input('direction', 'asc');
+        $employee = $this->employeeService->findById($id);
+        $data = $this->employeeService->searchDetailsWithEmployee(
+            $id,
+            $request->all(),
+            $sortBy,
+            $direction
+        );
+        $config = $this->config();
+
+        $config['template'] = "dashboard.employee.show";
+
+        return view(
+            'dashboard.layout',
+            compact(['config', 'employee', 'direction', 'id', 'data'])
+        );
+    }
     public function edit($id)
     {
         try {
@@ -51,7 +74,7 @@ class EmployeeController extends Controller
 
             return view('dashboard.layout', compact(['config', 'employee', 'teams']));
         } catch (Exception $e) {
-            \Log::info($e->getMessage(), [
+            Log::info($e->getMessage(), [
                 'action' => __METHOD__,
                 'id' => $id
             ]);
@@ -121,7 +144,7 @@ class EmployeeController extends Controller
             return redirect()->route('employee.index')->with(SESSION_SUCCESS, UPDATE_SUCCESS);
         } catch (Exception $e) {
             $this->fileService->removeFile($request->avatar);
-            \Log::info(
+            Log::info(
                 $e->getMessage(),
                 [
                     'action' => __METHOD__,
@@ -139,7 +162,7 @@ class EmployeeController extends Controller
             return redirect()->route('employee.index')->with(SESSION_SUCCESS, CREATE_SUCCESS);
         } catch (Exception $e) {
             $this->fileService->removeFile($request->avatar);
-            \Log::info(
+            Log::info(
                 $e->getMessage(),
                 [
                     'action' => __METHOD__,
@@ -157,7 +180,7 @@ class EmployeeController extends Controller
 
             return redirect()->route('employee.index')->with(SESSION_SUCCESS, DELETE_SUCCESS);
         } catch (Exception $e) {
-            \Log::info(
+            Log::info(
                 $e->getMessage(),
                 [
                     'action' => __METHOD__,

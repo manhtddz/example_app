@@ -2,9 +2,12 @@
 
 namespace App\Services\Repository;
 
+use App\Models\EmployeeProject;
 use App\Models\Project;
 use App\Services\Interfaces\IProjectRepository;
 use Exception;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 
 class ProjectRepository extends BaseRepository implements IProjectRepository
 {
@@ -14,7 +17,7 @@ class ProjectRepository extends BaseRepository implements IProjectRepository
         parent::__construct(self::MODEL);
     }
 
-    public function findAllWithTeam()
+    public function findAllWithTeamName()
     {
         try {
             return Project::with([
@@ -23,7 +26,7 @@ class ProjectRepository extends BaseRepository implements IProjectRepository
                 }
             ])->get();
         } catch (Exception $e) {
-            \Log::info($e->getMessage());
+            Log::info($e->getMessage());
             return null;
         }
     }
@@ -34,7 +37,7 @@ class ProjectRepository extends BaseRepository implements IProjectRepository
                 $requestData,
                 fn($value) => $value !== null && $value !== ''
             );
-            $columns = \Schema::getColumnListing((new (self::MODEL))->getTable()); // Take column list
+            $columns = Schema::getColumnListing((new (self::MODEL))->getTable()); // Take column list
             $query = (self::MODEL)::query();
             foreach ($filters as $key => $value) {
                 // if (in_array(strtolower($key), $columns)) {
@@ -54,9 +57,72 @@ class ProjectRepository extends BaseRepository implements IProjectRepository
             return $query->paginate($amount);
 
         } catch (Exception $e) {
-            \Log::info($e->getMessage());
+            Log::info($e->getMessage());
             return null;
         }
+    }
+    public function findAllWithTeamPaging($amount, $teamId)
+    {
+        try {
+            return Project::where('team_id', $teamId)
+                ->paginate($amount);
+        } catch (Exception $e) {
+            Log::info($e->getMessage());
+            return null;
+        }
+    }
+    public function searchWithTeam($amount, $teamId, array $requestData, $sort = null, $direction = 'asc')
+    {
+        try {
+            $filters = array_filter(
+                $requestData,
+                fn($value) => $value !== null && $value !== ''
+            );
+            $columns = Schema::getColumnListing((new (self::MODEL))->getTable()); // Take column list
+            $query = (self::MODEL)::query();
+            $query->where("team_id", $teamId);
+            foreach ($filters as $key => $value) {
+                if ($key === 'name') {
+                    $query->where($key, 'like', '%' . $value . '%');
+                }
+            }
 
+            if ($sort && in_array(strtolower($sort), $columns)) {
+                $query->orderBy($sort, strtolower($direction));
+            }
+
+            return $query->paginate($amount);
+
+        } catch (Exception $e) {
+            Log::info($e->getMessage());
+            return null;
+        }
+    }
+
+    public function createRelationWithEmployee($projectId, $employeeId)
+    {
+        try {
+            $result = EmployeeProject::create([
+                'project_id' => $projectId,
+                'employee_id' => $employeeId
+            ]);
+            return $result;
+        } catch (Exception $e) {
+            Log::info($e->getMessage());
+            return null;
+        }
+    }
+    public function deleteRelationWithEmployee($projectId, $employeeId)
+    {
+        try {
+            $employeeProject = EmployeeProject::where('employee_id', $employeeId)
+                ->where('project_id', $projectId)
+                ->first();
+            $result = $employeeProject->delete();
+            return $result;
+        } catch (Exception $e) {
+            Log::info($e->getMessage());
+            return null;
+        }
     }
 }

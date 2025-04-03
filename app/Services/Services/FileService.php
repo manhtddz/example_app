@@ -1,7 +1,8 @@
 <?php
 namespace App\Services\Services;
 
-use Storage;
+use Illuminate\Support\Facades\Storage;
+
 class FileService
 {
     private static $instance = null;
@@ -33,7 +34,7 @@ class FileService
             Storage::disk('public')->delete($fileName);
         }
     }
-    
+
     public function moveTempFileToApp($fileName)
     {
         $tempPath = 'temp/' . $fileName;  // Take path form temp folder
