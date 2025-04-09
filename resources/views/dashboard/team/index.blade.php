@@ -73,6 +73,7 @@
                 </tr>
             @endforeach
         </table>
+        <!-- Pagination -->
         @if ($teams->hasPages())
 
             <ul class="pagination">

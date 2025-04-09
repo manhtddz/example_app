@@ -9,22 +9,10 @@ use App\Models\Team;
         <form action="{{ route('project.create') }}" method="POST">
             @csrf
             <div class="mb-3">
-                <label class="form-label"><strong>Team:</strong></label>
-                <p class="border p-2 bg-light">{{ Team::getFieldById(session('project_data.team_id'), 'name')  }}</p>
-
-                <input type="hidden" name="team_id" value="{{ session('project_data.team_id') }}">
-                @error('team_id')
-                    <p style="color: red;">{{ $message }}</p>
-                @enderror
-            </div>
-            <div class="mb-3">
                 <label class="form-label"><strong>Name:</strong></label>
                 <p class="border p-2 bg-light">{{ session('project_data.name') }}</p>
 
                 <input type="hidden" name="name" value="{{ session('project_data.name') }}">
-                @error('name')
-                    <p style="color: red;">{{ $message }}</p>
-                @enderror
             </div>
             <div class="d-flex justify-content-between">
                 <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#confirmModal">

@@ -9,9 +9,6 @@
                 <p class="border p-2 bg-light">{{ session('team_data.name') }}</p>
 
                 <input type="hidden" name="name" value="{{ session('team_data.name') }}">
-                @error('name')
-                    <p style="color: red;">{{ $message }}</p>
-                @enderror
             </div>
             <div class="d-flex justify-content-between">
                 <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#confirmModal">

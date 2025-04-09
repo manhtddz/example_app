@@ -70,7 +70,6 @@ class TeamService
         $data = $this->projectRepository->findAllWithTeamPaging(ITEM_PER_PAGE, $teamId);
         if ($tab === 'projects') {
             if (!empty($filtered)) { // Call service when search data is not empty
-                // dd($filtered);
                 $data = $this->projectRepository->searchWithTeam(
                     ITEM_PER_PAGE,
                     $teamId,
@@ -80,13 +79,10 @@ class TeamService
                 );
             }
         }
-        // dd($tab === 'employees');
         if ($tab === 'employees') {
             $data = $this->employeeRepository->findAllWithTeamPaging(ITEM_PER_PAGE, $teamId);
 
             if (!empty($filtered)) { // Call service when search data is not empty
-                // dd($filtered);
-
                 $data = $this->employeeRepository->searchWithTeam(
                     ITEM_PER_PAGE,
                     $teamId,

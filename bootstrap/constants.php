@@ -11,6 +11,7 @@ define("LOGIN_SUCCESS", "Login success");
 define("NOT_LOGIN_ERROR", "You are not login!");
 
 define("ERROR_ACCESS_DENIED", "Can't go to this page directly");
+define("ERROR_FORBIDDEN", "You don't have permission");
 
 define("SESSION_SUCCESS", "success");
 define("SESSION_ERROR", "error");

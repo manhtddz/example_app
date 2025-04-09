@@ -28,10 +28,10 @@ class ProjectService
     {
         return $this->projectRepository->findAll();
     }
-    public function findAllWithTeamName()
-    {
-        return $this->projectRepository->findAllWithTeamName();
-    }
+    // public function findAllWithTeamName()
+    // {
+    //     return $this->projectRepository->findAllWithTeamName();
+    // }
     public function findAllPaging()
     {
         return $this->projectRepository->findAllPaging(ITEM_PER_PAGE);
@@ -73,7 +73,6 @@ class ProjectService
         $data = $this->taskRepository->findAllWithProjectPaging(ITEM_PER_PAGE, $projectId);
         if ($tab === 'tasks') {
             if (!empty($filtered)) { // Call service when search data is not empty
-                // dd($filtered);
                 $data = $this->taskRepository->searchWithProject(
                     ITEM_PER_PAGE,
                     $projectId,
@@ -83,13 +82,10 @@ class ProjectService
                 );
             }
         }
-        // dd($tab === 'employees');
         if ($tab === 'employees') {
             $data = $this->employeeRepository->findAllWithProjectPaging(ITEM_PER_PAGE, $projectId);
 
             if (!empty($filtered)) { // Call service when search data is not empty
-                // dd($filtered);
-
                 $data = $this->employeeRepository->searchWithProject(
                     ITEM_PER_PAGE,
                     $projectId,

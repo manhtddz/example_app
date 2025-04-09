@@ -44,7 +44,6 @@ class EmployeeController extends Controller
     }
     public function show(Request $request, $id)
     {
-        // dd($request->input('tab'));
         $sortBy = $request->input('sortBy');
         $direction = $request->input('direction', 'asc');
         $employee = $this->employeeService->findById($id);
@@ -161,7 +160,6 @@ class EmployeeController extends Controller
 
             return redirect()->route('employee.index')->with(SESSION_SUCCESS, CREATE_SUCCESS);
         } catch (Exception $e) {
-            $this->fileService->removeFile($request->avatar);
             Log::info(
                 $e->getMessage(),
                 [

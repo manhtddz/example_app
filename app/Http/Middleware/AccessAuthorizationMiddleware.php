@@ -4,10 +4,9 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Session;
 use Symfony\Component\HttpFoundation\Response;
 
-class StoreUrlAfterDoneRequest
+class AccessAuthorizationMiddleware
 {
     /**
      * Handle an incoming request.
@@ -16,14 +15,12 @@ class StoreUrlAfterDoneRequest
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $currentUrl = $request->fullUrl();
+        $acceptedPosition = [1, 2];
 
-        // Nếu URL hiện tại khác URL cuối cùng trong danh sách thì mới thêm vào (tránh trùng lặp)
-        if (empty($previousUrls) || end($previousUrls) !== $currentUrl) {
-            $previousUrls[] = $currentUrl;
+        $employeePosition = auth()->user()->position;
+        if (!in_array($employeePosition, $acceptedPosition)) {
+            return redirect()->back()->with(SESSION_ERROR, ERROR_FORBIDDEN);
         }
-        Session::push('previous_urls', $previousUrls);
-
         return $next($request);
     }
 }

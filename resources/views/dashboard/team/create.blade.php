@@ -1,3 +1,4 @@
+<!-- Session message -->
 @if(session(SESSION_ERROR))
     <div class="alert alert-danger">
         {{ session(SESSION_ERROR) }}

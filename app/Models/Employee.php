@@ -46,7 +46,6 @@ class Employee extends Authenticatable
 
         static::creating(function ($model) {
             $model->ins_id = auth()->user()->id;
-            $model->del_flag = IS_NOT_DELETED;
         });
 
         static::updating(function ($model) {

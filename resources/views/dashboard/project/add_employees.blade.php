@@ -1,4 +1,5 @@
 <div class="container mt-5">
+    <!-- Session message -->
     @if (session(SESSION_ERROR))
         <div class="alert alert-danger">
             {{ session(SESSION_ERROR) }}
@@ -34,7 +35,6 @@
     </form>
 
     <!-- Employee List -->
-    <!--  -->
 
     <form method="POST" action="{{ route('project.addEmployees', $project->id) }}">
         @csrf

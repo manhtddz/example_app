@@ -5,14 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class EmployeeProject extends Model
+class TeamProject extends Model
 {
     use HasFactory;
     protected $primaryKey = 'id';
     public $timestamps = false;
-    protected $table = "employee_project";
+    protected $table = "team_project";
     protected $fillable = [
-        'employee_id',
+        'team_id',
         'project_id',
         'del_flag'
     ];
@@ -20,15 +20,14 @@ class EmployeeProject extends Model
     protected static function boot()
     {
         parent::boot();
-        static::creating(function ($employeeProject) {
-            $employeeTeam = Employee::where('id', $employeeProject->employee_id)->value('team_id');
-            $projectTeam = Project::where('id', $employeeProject->project_id)->value('team_id');
-            $employeeProject->ins_id = auth()->user()->id;
-            $employeeProject->del_flag = IS_NOT_DELETED;
-            
-            if ($employeeTeam !== $projectTeam) {
-                throw new \Exception('Employee can only join projects of their own team.');
-            }
+        static::creating(function ($model) {
+            // $employeeTeam = Employee::where('id', $employeeProject->employee_id)->value('team_id');
+            // $projectTeam = Project::where('id', $employeeProject->project_id)->value('team_id');
+            $model->ins_id = auth()->user()->id;
+
+            // if ($employeeTeam !== $projectTeam) {
+            //     throw new \Exception('Employee can only join projects of their own team.');
+            // }
         });
 
         static::updating(function ($model) {

@@ -3,6 +3,7 @@ use App\Const\TaskStatus;
 ?>
 <div class="container mt-5">
     <h2 class="mb-4">Task - Search</h2>
+    <!-- Session message -->
     @if (session(SESSION_ERROR))
         <div class="alert alert-danger">
             {{ session(SESSION_ERROR) }}
@@ -111,7 +112,7 @@ use App\Const\TaskStatus;
                 </tr>
             @endforeach
         </table>
-
+        <!-- Pagination -->
         @if ($tasks->hasPages())
 
             <ul class="pagination">

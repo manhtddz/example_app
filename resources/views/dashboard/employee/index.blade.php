@@ -1,5 +1,6 @@
 <div class="container mt-5">
     <h2 class="mb-4">Employee - Search</h2>
+    <!-- Session message -->
     @if (session(SESSION_ERROR))
         <div class="alert alert-danger">
             {{ session(SESSION_ERROR) }}
@@ -117,7 +118,7 @@
                 </tr>
             @endforeach
         </table>
-
+        <!-- Pagination -->
         @if ($employees->hasPages())
 
             <ul class="pagination">

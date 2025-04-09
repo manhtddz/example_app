@@ -50,7 +50,6 @@ class ProjectController extends Controller
     }
     public function show(Request $request, $id)
     {
-        // dd($request->input('tab'));
         try {
             $sortBy = $request->input('sortBy');
             $direction = $request->input('direction', 'asc');
@@ -104,16 +103,6 @@ class ProjectController extends Controller
 
         return view('dashboard.layout', compact(['config', 'teams']));
     }
-    // public function getAddTaskForm(Request $request)
-    // {
-    //     $projects = $this->projectService->findAllWithTeamName();
-    //     $projectId = $request->input('project_id');
-    //     $config = $this->config();
-    //     $config['template'] = "dashboard.task.create";
-
-    //     return view('dashboard.layout', compact(['config', 'projects', 'projectId']));
-    // }
-
     public function updateConfirm($id, ProjectUpdateRequest $request)
     {
         $this->projectService->prepareConfirmForUpdate($request);

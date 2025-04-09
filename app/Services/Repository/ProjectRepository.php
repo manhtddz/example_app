@@ -17,19 +17,19 @@ class ProjectRepository extends BaseRepository implements IProjectRepository
         parent::__construct(self::MODEL);
     }
 
-    public function findAllWithTeamName()
-    {
-        try {
-            return Project::with([
-                'team' => function ($query) {
-                    $query->select('id', 'name');
-                }
-            ])->get();
-        } catch (Exception $e) {
-            Log::info($e->getMessage());
-            return null;
-        }
-    }
+    // public function findAllWithTeamName()
+    // {
+    //     try {
+    //         return Project::with([
+    //             'team' => function ($query) {
+    //                 $query->select('id', 'name');
+    //             }
+    //         ])->get();
+    //     } catch (Exception $e) {
+    //         Log::info($e->getMessage());
+    //         return null;
+    //     }
+    // }
     public function search($amount, array $requestData, $sort = null, $direction = 'asc')
     {
         try {
@@ -64,7 +64,17 @@ class ProjectRepository extends BaseRepository implements IProjectRepository
     public function findAllWithTeamPaging($amount, $teamId)
     {
         try {
-            return Project::where('team_id', $teamId)
+            return Project::withoutGlobalScopes()
+                ->where('del_flag', IS_NOT_DELETED)
+                ->whereExists(function ($query) use ($teamId) {
+                    $query
+                        ->from('team_project')
+                        ->join('m_teams', 'team_project.team_id', '=', 'm_teams.id')
+                        ->whereColumn('team_project.project_id', 'projects.id')
+                        ->where('m_teams.id', $teamId)
+                        ->where('m_teams.del_flag', IS_NOT_DELETED)
+                        ->where('team_project.del_flag', IS_NOT_DELETED);
+                })
                 ->paginate($amount);
         } catch (Exception $e) {
             Log::info($e->getMessage());
@@ -79,8 +89,17 @@ class ProjectRepository extends BaseRepository implements IProjectRepository
                 fn($value) => $value !== null && $value !== ''
             );
             $columns = Schema::getColumnListing((new (self::MODEL))->getTable()); // Take column list
-            $query = (self::MODEL)::query();
-            $query->where("team_id", $teamId);
+            $query = Project::withoutGlobalScopes()
+                ->where('del_flag', IS_NOT_DELETED)
+                ->whereExists(function ($query) use ($teamId) {
+                    $query
+                        ->from('team_project')
+                        ->join('m_teams', 'team_project.team_id', '=', 'm_teams.id')
+                        ->whereColumn('team_project.project_id', 'projects.id')
+                        ->where('m_teams.id', $teamId)
+                        ->where('m_teams.del_flag', IS_NOT_DELETED)
+                        ->where('team_project.del_flag', IS_NOT_DELETED);
+                });
             foreach ($filters as $key => $value) {
                 if ($key === 'name') {
                     $query->where($key, 'like', '%' . $value . '%');

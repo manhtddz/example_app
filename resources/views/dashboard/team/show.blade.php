@@ -41,8 +41,9 @@ use App\Const\TaskStatus;
         <div class="tab-pane fade {{ request()->query('tab', 'projects') == 'projects' ? 'show active' : '' }}"
             id="projects">
             <div class="card p-3 mb-3">
+                <!-- Search Form -->
                 <form action="{{ route('team.show', $id) }}" method="GET">
-                    <input type="hidden" name="tab" value="projects"> <!-- Giữ tab khi submit -->
+                    <input type="hidden" name="tab" value="projects"> <!-- Keep tab when submitting -->
                     <div class="mb-2">
                         <label for="name" class="form-label">Project Name:</label>
                         <input type="text" class="form-control form-control-sm" id="name" name="name"
@@ -55,6 +56,7 @@ use App\Const\TaskStatus;
                     </div>
                 </form>
             </div>
+            <!-- Search Result -->
             @if($data->isNotEmpty())
                 <table class="table table-bordered table-sm">
                     <thead class="table-dark">
@@ -115,8 +117,9 @@ use App\Const\TaskStatus;
         <!-- Employees Tab -->
         <div class="tab-pane fade {{ request()->query('tab') == 'employees' ? 'show active' : '' }}" id="employees">
             <div class="card p-3 mb-3">
+                <!-- Search Form -->
                 <form action="{{ route('team.show', $id) }}" method="GET">
-                    <input type="hidden" name="tab" value="employees"> <!-- Giữ tab khi submit -->
+                    <input type="hidden" name="tab" value="employees"> <!-- Keep tab when submitting -->
                     <div class="mb-2">
                         <label for="name" class="form-label">Employee Name:</label>
                         <input type="text" class="form-control form-control-sm" id="name" name="name"
@@ -134,6 +137,7 @@ use App\Const\TaskStatus;
                     </div>
                 </form>
             </div>
+            <!-- Search Result -->
             @if($data->isNotEmpty())
                 <table class="table table-bordered table-sm">
                     <thead class="table-dark">
@@ -207,6 +211,7 @@ use App\Const\TaskStatus;
                 </table>
             @endif
         </div>
+        <!-- Pagination -->
         @if ($data->hasPages())
 
             <nav>

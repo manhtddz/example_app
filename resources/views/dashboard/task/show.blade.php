@@ -25,6 +25,7 @@ use App\Const\TaskStatus;
     <div class="tab-content mt-3">
         <!-- Tasks Tab -->
         <div class="card p-3 mb-3">
+            <!-- Search Form -->
             <form action="{{ route('task.show', $id) }}" method="GET">
                 <div class="mb-2">
                     <label for="name" class="form-label">Employee Name:</label>
@@ -44,6 +45,7 @@ use App\Const\TaskStatus;
             </form>
         </div>
         <a href="{{ route('task.addEmployees', $task->id) }}" class="btn btn-primary btn-sm">Add Employee</a>
+        <!-- Search Result -->
         @if($data->isNotEmpty())
             <table class="table table-bordered table-sm">
                 <thead class="table-dark">
@@ -118,6 +120,7 @@ use App\Const\TaskStatus;
                 </tr>
             </table>
         @endif
+        <!-- Pagination -->
         @if ($data->hasPages())
 
             <nav>

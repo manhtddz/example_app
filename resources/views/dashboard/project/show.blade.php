@@ -1,6 +1,5 @@
 <?php
 use App\Const\TaskStatus;
-// dd($data);
 ?>
 <div class="container mt-5">
     <h2 class="mb-4">Project - Details</h2>
@@ -18,7 +17,6 @@ use App\Const\TaskStatus;
     @endphp
     <p><strong>ID:</strong> {{ $project->id }}</p>
     <p><strong>Project Name:</strong> {{ $project->name }}</p>
-    <p><strong>Team:</strong> {{ $project->team->name }}</p>
 
     <!-- Tabs Navigation -->
     <ul class="nav nav-tabs mt-3" id="projectTabs">
@@ -41,8 +39,9 @@ use App\Const\TaskStatus;
         <!-- Tasks Tab -->
         <div class="tab-pane fade {{ request()->query('tab', 'tasks') == 'tasks' ? 'show active' : '' }}" id="tasks">
             <div class="card p-3 mb-3">
+                <!-- Search Form -->
                 <form action="{{ route('project.show', $id) }}" method="GET">
-                    <input type="hidden" name="tab" value="tasks"> <!-- Giữ tab khi submit -->
+                    <input type="hidden" name="tab" value="tasks"> <!--  Keep tab when submitting  -->
                     <div class="mb-2">
                         <label for="name" class="form-label">Task Name:</label>
                         <input type="text" class="form-control form-control-sm" id="name" name="name"
@@ -66,9 +65,10 @@ use App\Const\TaskStatus;
                     </div>
                 </form>
             </div>
-
-            <a href="{{ route('task.create', $project->id) }}" class="btn btn-primary btn-sm">Create Task</a>
-            <!-- form bo di -->
+            <!-- Create from details -->
+            <a href="{{ route('task.create') . '?projectId=' . $project->id }}" class="btn btn-primary btn-sm">Create
+                Task</a>
+            <!-- Search Result -->
             @if($data->isNotEmpty())
                 <table class="table table-bordered table-sm">
                     <thead class="table-dark">
@@ -138,9 +138,10 @@ use App\Const\TaskStatus;
 
         <!-- Employees Tab -->
         <div class="tab-pane fade {{ request()->query('tab') == 'employees' ? 'show active' : '' }}" id="employees">
+            <!-- Search Form -->
             <div class="card p-3 mb-3">
                 <form action="{{ route('project.show', $id) }}" method="GET">
-                    <input type="hidden" name="tab" value="employees"> <!-- Giữ tab khi submit -->
+                    <input type="hidden" name="tab" value="employees"> <!--  Keep tab when submitting  -->
                     <div class="mb-2">
                         <label for="name" class="form-label">Employee Name:</label>
                         <input type="text" class="form-control form-control-sm" id="name" name="name"
@@ -158,8 +159,11 @@ use App\Const\TaskStatus;
                     </div>
                 </form>
             </div>
+
+            <!-- Add employee to project -->
             <a href="{{ route('project.addEmployees', $project->id) }}" class="btn btn-primary btn-sm">Add Employee</a>
 
+            <!-- Search Result -->
             @if($data->isNotEmpty())
                 <table class="table table-bordered table-sm">
                     <thead class="table-dark">

@@ -90,7 +90,7 @@ use App\Const\TypeOfWork;
 
             @php
                 $birthday = old('birthday', session('employee_data.birthday', $employee->birthday));
-                if ($birthday instanceof \Carbon\Carbon) {
+                if ($birthday instanceof \Carbon\Carbon) { //ensure type of Y-m-d
                     $birthday = $birthday->format('Y-m-d');
                 } elseif (!empty($birthday)) {
                     $birthday = date('Y-m-d', strtotime($birthday));

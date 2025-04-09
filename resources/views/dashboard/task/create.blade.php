@@ -1,6 +1,7 @@
 <?php
 use App\Const\TaskStatus;
 ?>
+<!-- Session message -->
 @if(session(SESSION_ERROR))
     <div class="alert alert-danger">
         {{ session(SESSION_ERROR) }}
@@ -8,11 +9,11 @@ use App\Const\TaskStatus;
 @endif
 <div class="container mt-4">
     <h2 class="mb-3">Task - Create</h2>
-    <form action="{{ route('task.createConfirm', $projectId ?? null) }}" method="POST">
+    <form action="{{ route('task.createConfirm') . ($projectId ? '?projectId=' . $projectId : '') }}" method="POST">
         @csrf
         <div class="mb-3">
-            <label class="form-label" for="team">Team:</label><br>
-            <select class="form-control" id="team" name="project_id">
+            <label class="form-label" for="project">Project:</label><br>
+            <select class="form-control" id="project" name="project_id">
                 @php
                     $selectedProjectId = old('project_id', session('task_data.project_id', $projectId ?? ''));
                 @endphp
@@ -20,7 +21,7 @@ use App\Const\TaskStatus;
                 </option>
                 @foreach ($projects as $project)
                     <option value="{{ $project->id }}" {{ $selectedProjectId == $project->id ? 'selected ' : '' }}>
-                        {{ $project->name . ' - ' . $project->team->name}}
+                        {{ $project->name }}
                     </option>
                 @endforeach
             </select>
@@ -32,6 +33,13 @@ use App\Const\TaskStatus;
             <label for="name" class="form-label">Name:</label>
             <input type="text" class="form-control" name="name" value="{{ old('name', session('task_data.name')) }}">
             @error('name') <p style="color: red;">{{ $message }}</p> @enderror
+        </div>
+
+        <div class="mb-3">
+            <label for="description" class="form-label">Description:</label>
+            <textarea class="form-control" name="description"
+                value="{{ old('description', session('task_data.description')) }}"></textarea>
+            @error('description') <p style="color: red;">{{ $message }}</p> @enderror
         </div>
 
         <div class="mb-3">

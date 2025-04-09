@@ -45,7 +45,6 @@ class TaskService
         );
         $data = $this->employeeRepository->findAllWithTaskPaging(ITEM_PER_PAGE, $taskId);
         if (!empty($filtered)) { // Call service when search data is not empty
-            // dd($filtered);
             $data = $this->employeeRepository->searchWithTask(
                 ITEM_PER_PAGE,
                 $taskId,
@@ -124,6 +123,7 @@ class TaskService
     public function prepareConfirmForCreate($request)
     {
         $validatedData = $request->validated();
+        unset($validatedData['projectId']);
 
         session()->flash('task_data', $validatedData);
     }

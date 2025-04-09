@@ -25,6 +25,12 @@ use App\Const\TaskStatus;
             @error('name') <p style="color: red;">{{ $message }}</p> @enderror
         </div>
         <div class="mb-3">
+            <label for="description" class="form-label">Description:</label>
+            <textarea class="form-control" name="description"
+                value="{{ old('description', session('task_data.description')) }}"></textarea>
+            @error('description') <p style="color: red;">{{ $message }}</p> @enderror
+        </div>
+        <div class="mb-3">
             <label class="form-label">Task Status:</label><br>
             @php $statusOptions = TaskStatus::LIST; @endphp
             @foreach ($statusOptions as $value => $label)

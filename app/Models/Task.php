@@ -14,6 +14,7 @@ class Task extends Model
     protected $fillable = [
         'name',
         'project_id',
+        'description',
         'task_status',
         'del_flag'
     ];
@@ -23,7 +24,6 @@ class Task extends Model
         parent::boot();
         static::creating(function ($model) {
             $model->ins_id = auth()->user()->id;
-            $model->del_flag = IS_NOT_DELETED;
         });
 
         static::updating(function ($model) {

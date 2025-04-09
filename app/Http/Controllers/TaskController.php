@@ -32,7 +32,7 @@ class TaskController extends Controller
         $sortBy = $request->input('sortBy');
         $direction = $request->input('direction', 'asc');
         $config = $this->config();
-        $projects = $this->projectService->findAllPaging();
+        $projects = $this->projectService->findAll();
         $tasks = $this->taskService
             ->search($request->all(), $sortBy, $direction)
             ->appends($request->query());
@@ -44,7 +44,6 @@ class TaskController extends Controller
     }
     public function show(Request $request, $id)
     {
-        // dd($request->input('tab'));
         $sortBy = $request->input('sortBy');
         $direction = $request->input('direction', 'asc');
         $task = $this->taskService->findById($id);
@@ -66,7 +65,7 @@ class TaskController extends Controller
     public function edit($id)
     {
         try {
-            $projects = $this->projectService->findAllWithTeamName();
+            $projects = $this->projectService->findAll();
             $task = $this->taskService->findById($id);
             $config = $this->config();
 
@@ -81,9 +80,10 @@ class TaskController extends Controller
             return redirect()->route('task.index')->with(SESSION_ERROR, $e->getMessage());
         }
     }
-    public function getCreateForm($projectId = null)
+    public function getCreateForm(Request $request)
     {
-        $projects = $this->projectService->findAllWithTeamName();
+        $projectId = $request->input('projectId');
+        $projects = $this->projectService->findAll();
         $config = $this->config();
         $config['template'] = "dashboard.task.create";
 
@@ -111,8 +111,9 @@ class TaskController extends Controller
 
         return view('dashboard.layout', compact(['config']));
     }
-    public function createConfirm(TaskCreateRequest $request, $projectId = null)
+    public function createConfirm(TaskCreateRequest $request)
     {
+        $projectId = $request->input('projectId');
         $this->taskService->prepareConfirmForCreate($request);
 
         $config = $this->config();
@@ -148,11 +149,12 @@ class TaskController extends Controller
             return redirect()->route('task.index')->with(SESSION_ERROR, $e->getMessage());
         }
     }
-    public function create(Request $request, $projectId = null)
+    public function create(Request $request)
     {
         try {
+            $projectId = $request->input('projectId');
             $this->taskService->create($request->all());
-            if (!$projectId) {
+            if (!$request->input('projectId')) {
                 return redirect()->route('task.index')->with(SESSION_SUCCESS, CREATE_SUCCESS);
             }
             return redirect()->route('project.show', $projectId)->with(SESSION_SUCCESS, CREATE_SUCCESS);
@@ -167,23 +169,6 @@ class TaskController extends Controller
             return redirect()->route('task.index')->with(SESSION_ERROR, $e->getMessage());
         }
     }
-    // public function createAndRedirectToProjectDetails(Request $request, $projectId)
-    // {
-    //     try {
-    //         $this->taskService->create($request->all());
-    //         return redirect()->route('project.show', $projectId)->with(SESSION_SUCCESS, CREATE_SUCCESS);
-    //     } catch (Exception $e) {
-    //         \Log::info(
-    //             $e->getMessage(),
-    //             [
-    //                 'action' => __METHOD__,
-    //                 'data' => request()->all()
-    //             ]
-    //         );
-    //         return redirect()->route('project.show', $projectId)->with(SESSION_ERROR, $e->getMessage());
-    //     }
-    // }
-
     public function delete($id)
     {
         try {
@@ -212,7 +197,6 @@ class TaskController extends Controller
                 ->searchWithProjectPaging($task->project->id, $request->all(), $sortBy, $direction);
             $selectedEmployees = $this->employeeService
                 ->findAllWithTask($task->id)->toArray();
-            // dd($employees);
             $config = $this->config();
 
             $config['template'] = "dashboard.task.add_employees";

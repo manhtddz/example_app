@@ -30,8 +30,11 @@ class FileService
 
     public function removeFile($fileName)
     {
-        if (Storage::disk('public')->exists($fileName)) {
-            Storage::disk('public')->delete($fileName);
+        if (!empty($path)) {
+
+            if (Storage::disk('public')->exists($fileName)) {
+                Storage::disk('public')->delete($fileName);
+            }
         }
     }
 

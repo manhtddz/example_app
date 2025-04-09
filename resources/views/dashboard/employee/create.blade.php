@@ -4,6 +4,7 @@ use App\Const\Position;
 use App\Const\Status;
 use App\Const\TypeOfWork;
 ?>
+<!-- Session message -->
 @if(session(SESSION_ERROR))
     <div class="alert alert-danger">
         {{ session(SESSION_ERROR) }}
@@ -17,7 +18,7 @@ use App\Const\TypeOfWork;
             <label class="form-label" for="team">Team:</label><br>
             <select class="form-control" id="team" name="team_id">
                 @php
-                    $selectedTeamId = old('team_id', session('employee_data.team_id')); // Tránh lỗi khi session không có giá trị
+                    $selectedTeamId = old('team_id', session('employee_data.team_id'));
                 @endphp
                 <option value="">{{ '' }}
                 </option>
@@ -77,7 +78,7 @@ use App\Const\TypeOfWork;
 
                 @php
                     $genderOptions = Gender::LIST;
-                    $selectedGender = old('gender', session('employee_data.gender')); // Tránh lỗi khi session không có giá trị
+                    $selectedGender = old('gender', session('employee_data.gender'));
                 @endphp
 
                 @foreach ($genderOptions as $value => $label)
@@ -98,7 +99,7 @@ use App\Const\TypeOfWork;
 
                 @php
                     $birthday = old('birthday', session('employee_data.birthday'));
-                    if ($birthday instanceof \Carbon\Carbon) {
+                    if ($birthday instanceof \Carbon\Carbon) { //ensure type of Y-m-d
                         $birthday = $birthday->format('Y-m-d');
                     } elseif (!empty($birthday)) {
                         $birthday = date('Y-m-d', strtotime($birthday));

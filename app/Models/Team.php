@@ -21,7 +21,6 @@ class Team extends Model
 
         static::creating(function ($model) {
             $model->ins_id = auth()->user()->id;
-            $model->del_flag = IS_NOT_DELETED;
         });
 
         static::updating(function ($model) {
@@ -40,7 +39,15 @@ class Team extends Model
     {
         return $this->hasMany(Employee::class);
     }
-    
+    public function projects()//relationship
+    {
+        return $this->belongsToMany(
+            Project::class,
+            'team_project',
+            'team_id',
+            'project_id'
+        );
+    }
     //Update del_flag to 1, so that upd_datetime and upd_id are automatically updated
     public function delete()
     {

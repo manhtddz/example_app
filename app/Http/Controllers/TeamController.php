@@ -36,7 +36,6 @@ class TeamController extends Controller
     }
     public function show(Request $request, $id)
     {
-        // dd($request->input('tab'));
         $sortBy = $request->input('sortBy');
         $direction = $request->input('direction', 'asc');
         $team = $this->teamService->findById($id);

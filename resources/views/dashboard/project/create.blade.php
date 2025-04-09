@@ -1,3 +1,4 @@
+<!-- Session message -->
 @if(session(SESSION_ERROR))
     <div class="alert alert-danger">
         {{ session(SESSION_ERROR) }}
@@ -7,23 +8,6 @@
     <h2 class="mb-3">Project - Create</h2>
     <form action="{{ route('project.createConfirm') }}" method="POST">
         @csrf
-        <div class="mb-3">
-            <label class="form-label" for="team">Team:</label><br>
-            <select class="form-control" id="team" name="team_id">
-                @php
-                    $selectedTeamId = old('team_id', session('project_data.team_id'));
-                @endphp
-                <option value="">{{ '' }}
-                </option>
-                @foreach ($teams as $team)
-                    <option value="{{ $team->id }}" {{ $selectedTeamId == $team->id ? 'selected ' : '' }}>{{ $team->name }}
-                    </option>
-                @endforeach
-            </select>
-            @error('team_id')
-                <p style="color: red;">{{ $message }}</p>
-            @enderror
-        </div>
         <div class="mb-3">
             <label for="name" class="form-label">Name:</label>
             <input type="text" class="form-control" name="name"

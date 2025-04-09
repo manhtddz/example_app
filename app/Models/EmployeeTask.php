@@ -31,7 +31,6 @@ class EmployeeTask extends Model
             }
 
             $employeeTask->ins_id = auth()->user()->id;
-            $employeeTask->del_flag = IS_NOT_DELETED;
         });
 
         static::updating(function ($model) {

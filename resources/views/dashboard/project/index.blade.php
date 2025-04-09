@@ -1,5 +1,6 @@
 <div class="container mt-5">
     <h2 class="mb-4">Project - Search</h2>
+    <!-- Session message -->
     @if (session(SESSION_ERROR))
         <div class="alert alert-danger">
             {{ session(SESSION_ERROR) }}
@@ -21,15 +22,6 @@
             <input type="text" class="form-control" id="name" name="name" placeholder="Name"
                 value="{{ request()->query('name') }}">
         </div>
-        <label class="form-label" for="team">Team:</label><br>
-        <select class="form-control w-25" id="team" name="team_id">
-            <option value="0" {{ request()->query('team_id') == 0 ? 'selected' : '' }}>{{ '' }}</option>
-            @foreach ($teams as $team)
-                <option value="{{ $team->id }}" {{ request()->query('team_id') == $team->id ? 'selected' : '' }}>
-                    {{ $team->name }}
-                </option>
-            @endforeach
-        </select>
         <div class="d-flex justify-content-between mt-3 w-100">
             <button type="submit" class="btn btn-primary me-2">Search</button>
 
@@ -50,12 +42,6 @@
                         </a>
                     </th>
                     <th>
-                        <a href="{{ request()->fullUrlWithQuery(['sortBy' => 'team_id', 'direction' => ($sortBy === 'team_id' && $direction === 'asc') ? 'desc' : 'asc']) }}"
-                            class="text-white">
-                            Team {!! $sortBy === 'team_id' ? ($direction === 'asc' ? '▲' : '▼') : '' !!}
-                        </a>
-                    </th>
-                    <th>
                         <a href="{{ request()->fullUrlWithQuery(['sortBy' => 'name', 'direction' => ($sortBy === 'name' && $direction === 'asc') ? 'desc' : 'asc']) }}"
                             class="text-white">
                             Name {!! $sortBy === 'name' ? ($direction === 'asc' ? '▲' : '▼') : '' !!}
@@ -67,9 +53,6 @@
             @foreach($projects as $project)
                 <tr>
                     <td>{{ $project->id }}</td>
-                    <td>
-                        {{ $project->team->name }}
-                    </td>
                     <td>
                         {{ $project->name }}
                     </td>
@@ -88,7 +71,7 @@
                 </tr>
             @endforeach
         </table>
-
+        <!-- Pagination -->
         @if ($projects->hasPages())
 
             <ul class="pagination">
@@ -155,7 +138,6 @@
             <thead class="table-dark">
                 <tr>
                     <th>ID</th>
-                    <th>Team</th>
                     <th>Name</th>
                     <th>Action</th>
                 </tr>

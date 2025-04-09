@@ -1,6 +1,5 @@
 <?php
 use App\Const\TaskStatus;
-// dd($data);
 ?>
 <div class="container mt-5">
     <h2 class="mb-4">Employee - Details</h2>
@@ -16,7 +15,7 @@ use App\Const\TaskStatus;
         $sortBy = request()->query('sortBy', 'id'); // Default sort by id
         $direction = request()->query('direction', 'asc'); //asc default 
     @endphp
-
+    <!-- Information -->
     <p><strong>ID:</strong> {{ $employee->id }}</p>
     <p><strong>Name:</strong> {{ $employee->name }}</p>
     <p><strong>Email:</strong> {{ $employee->email }}</p>
@@ -26,6 +25,7 @@ use App\Const\TaskStatus;
     <div class="tab-content mt-3">
         <!-- Tasks Tab -->
         <div class="card p-3 mb-3">
+            <!-- Search Form -->
             <form action="{{ route('employee.show', $id) }}" method="GET">
                 <div class="mb-2">
                     <label for="name" class="form-label">Task Name:</label>
@@ -49,6 +49,7 @@ use App\Const\TaskStatus;
                 </div>
             </form>
         </div>
+        <!-- Search Result -->
         @if($data->isNotEmpty())
             <table class="table table-bordered table-sm">
                 <thead class="table-dark">
@@ -119,6 +120,7 @@ use App\Const\TaskStatus;
                 </tr>
             </table>
         @endif
+        <!-- Pagination -->
         @if ($data->hasPages())
 
             <nav>

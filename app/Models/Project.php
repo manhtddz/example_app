@@ -12,7 +12,6 @@ class Project extends Model
     public $timestamps = false;
     protected $table = "projects";
     protected $fillable = [
-        'team_id',
         'name',
         'del_flag'
     ];
@@ -23,7 +22,6 @@ class Project extends Model
 
         static::creating(function ($model) {
             $model->ins_id = auth()->user()->id;
-            $model->del_flag = IS_NOT_DELETED;
         });
 
         static::updating(function ($model) {
@@ -44,9 +42,14 @@ class Project extends Model
         return vsprintf(str_replace('?', '%s', $addSlashes), $builder->getBindings());
     }
 
-    public function team()//relationship
+    public function teams()//relationship
     {
-        return $this->belongsTo(Team::class);
+        return $this->belongsToMany(
+            Team::class,
+            'team_project',
+            'project_id',
+            'team_id'
+        );
     }
 
     public function employees()

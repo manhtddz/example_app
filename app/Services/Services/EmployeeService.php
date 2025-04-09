@@ -99,7 +99,6 @@ class EmployeeService
         );
         $data = $this->taskRepository->findAllWithEmployeePaging(ITEM_PER_PAGE, $employeeId);
         if (!empty($filtered)) { // Call service when search data is not empty
-            // dd($filtered);
             $data = $this->taskRepository->searchWithEmployee(
                 ITEM_PER_PAGE,
                 $employeeId,
@@ -124,7 +123,6 @@ class EmployeeService
         );
         $employees = $this->employeeRepository->findAllWithTeamPaging(ITEM_PER_PAGE, $teamId);
         if (!empty($filtered)) { // Call service when search employees is not empty
-            // dd($filtered);
             $employees = $this->employeeRepository->searchWithTeam(
                 ITEM_PER_PAGE,
                 $teamId,
@@ -147,7 +145,6 @@ class EmployeeService
         );
         $employees = $this->employeeRepository->findAllWithProjectPaging(ITEM_PER_PAGE, $projectId);
         if (!empty($filtered)) { // Call service when search employees is not empty
-            // dd($filtered);
             $employees = $this->employeeRepository->searchWithProject(
                 ITEM_PER_PAGE,
                 $projectId,
@@ -161,7 +158,7 @@ class EmployeeService
 
     public function create(array $request)
     {
-        $this->fileService->moveTempFileToApp($request['avatar']);
+        $this->fileService->moveTempFileToApp($request['avatar'] ?? "");
 
         $result = $this->employeeRepository->create($request);
 
@@ -169,10 +166,10 @@ class EmployeeService
             throw new Exception(CREATE_FAILED);
         }
 
-        // $emailGetter['email'] = $request['email'];
-        // $emailGetter['first_name'] = $request['first_name'];
-        // $emailGetter['last_name'] = $request['last_name'];
-        // SendEmployeeEmailJob::dispatch($emailGetter)->delay(now()->addSeconds(5));
+        $emailGetter['email'] = $request['email'];
+        $emailGetter['first_name'] = $request['first_name'];
+        $emailGetter['last_name'] = $request['last_name'];
+        SendEmployeeEmailJob::dispatch($emailGetter)->delay(now()->addSeconds(5));
 
         return $result;
     }
@@ -190,10 +187,11 @@ class EmployeeService
             $this->fileService->removeFile('app/' . $request['old_avatar']);
             $this->fileService->moveTempFileToApp($request['avatar']);
         }
-        // $emailGetter['email'] = $request['email'];
-        // $emailGetter['first_name'] = $request['first_name'];
-        // $emailGetter['last_name'] = $request['last_name'];
-        // SendEmployeeEmailJob::dispatch($emailGetter)->delay(now()->addSeconds(5));
+
+        $emailGetter['email'] = $request['email'];
+        $emailGetter['first_name'] = $request['first_name'];
+        $emailGetter['last_name'] = $request['last_name'];
+        SendEmployeeEmailJob::dispatch($emailGetter)->delay(now()->addSeconds(5));
 
         return $result;
     }
