@@ -37,7 +37,7 @@ use App\Const\TaskStatus;
                 <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#confirmModal">
                     Save
                 </button>
-                <a href="{{ route('task.create') }}" class="btn btn-secondary">Cancel</a>
+                <a href="{{ url()->previous() }}" class="btn btn-secondary">Cancel</a>
             </div>
             @include('dashboard.component.confirm-modal')
 

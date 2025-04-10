@@ -10,7 +10,7 @@ use App\Models\Team;
     <div class="card p-4">
         <h4 class="mb-3">Employee - Create confirm</h4>
 
-        <form action="{{ route('employee.create') }}" method="POST">
+        <form action="{{ route('employee.create') . ($teamId ? '?teamId=' . $teamId : '')}}" method="POST">
             @csrf
             <div class="mb-3">
                 <label class="form-label"><strong>Avatar:</strong></label>
@@ -102,7 +102,7 @@ use App\Models\Team;
                 <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#confirmModal">
                     Save
                 </button>
-                <a href="{{ route('employee.create') }}" class="btn btn-secondary">Cancel</a>
+                <a href="{{ url()->previous() }}" class="btn btn-secondary">Cancel</a>
             </div>
             <!-- confirm modal -->
             @include('dashboard.component.confirm-modal')

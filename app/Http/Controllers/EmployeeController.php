@@ -62,44 +62,55 @@ class EmployeeController extends Controller
             compact(['config', 'employee', 'direction', 'id', 'data'])
         );
     }
-    public function edit($id)
+    public function edit($id, Request $request)
     {
         try {
+            $projectId = $request->input('projectId');
+            $teamId = $request->input('teamId');
             $teams = $this->teamService->findAll();
             $employee = $this->employeeService->findById($id);
             $config = $this->config();
 
             $config['template'] = "dashboard.employee.update";
 
-            return view('dashboard.layout', compact(['config', 'employee', 'teams']));
+            return view('dashboard.layout', compact(['config', 'employee', 'teams', 'projectId', 'teamId']));
         } catch (Exception $e) {
             Log::info($e->getMessage(), [
                 'action' => __METHOD__,
                 'id' => $id
             ]);
+            if ($request->input('projectId')) {
+                return redirect()->route('project.show', $projectId)->with(SESSION_ERROR, $e->getMessage());
+            }
+            if ($request->input('teamId')) {
+                return redirect()->route('team.show', $teamId)->with(SESSION_ERROR, $e->getMessage());
+            }
             return redirect()->route('employee.index')->with(SESSION_ERROR, $e->getMessage());
         }
     }
 
-    public function getCreateForm()
+    public function getCreateForm(Request $request)
     {
+        $teamId = $request->input('teamId');
         $teams = $this->teamService->findAll();
         $config = $this->config();
 
         $config['template'] = "dashboard.employee.create";
 
-        return view('dashboard.layout', compact(['config', 'teams']));
+        return view('dashboard.layout', compact(['config', 'teams', 'teamId']));
     }
 
     public function updateConfirm($id, EmployeeUpdateRequest $request)
     {
+        $projectId = $request->input('projectId');
+        $teamId = $request->input('teamId');
         //prepare data
         $this->employeeService->prepareConfirmForUpdate($id, $request);
 
         $config = $this->config();
         $config['template'] = "dashboard.employee.update_confirm";
 
-        return view('dashboard.layout', compact(['config', 'id']));
+        return view('dashboard.layout', compact(['config', 'id', 'projectId', 'teamId']));
     }
     public function showUpdateConfirm()
     {
@@ -115,13 +126,14 @@ class EmployeeController extends Controller
     }
     public function createConfirm(EmployeeCreateRequest $request)
     {
+        $teamId = $request->input('teamId');
         //prepare data
         $this->employeeService->prepareConfirmForCreate($request);
 
         $config = $this->config();
         $config['template'] = "dashboard.employee.create_confirm";
 
-        return view('dashboard.layout', compact(['config']));
+        return view('dashboard.layout', compact(['config', 'teamId']));
     }
     public function showCreateConfirm()
     {
@@ -138,8 +150,21 @@ class EmployeeController extends Controller
     public function update(Request $request, $id)
     {
         try {
+            $projectId = $request->input('projectId');
+            $teamId = $request->input('teamId');
             $this->employeeService->update($id, $request->all());
-
+            if ($request->input('projectId')) {
+                return redirect()->route('project.show', [
+                    'id' => $projectId,
+                    'tab' => 'employees'
+                ])->with(SESSION_SUCCESS, UPDATE_SUCCESS);
+            }
+            if ($request->input('teamId')) {
+                return redirect()->route('team.show', [
+                    'id' => $teamId,
+                    'tab' => 'employees'
+                ])->with(SESSION_SUCCESS, UPDATE_SUCCESS);
+            }
             return redirect()->route('employee.index')->with(SESSION_SUCCESS, UPDATE_SUCCESS);
         } catch (Exception $e) {
             $this->fileService->removeFile($request->avatar);
@@ -150,15 +175,33 @@ class EmployeeController extends Controller
                     'data' => array_merge(['id' => $id], $request->all())
                 ]
             );
+            if ($request->input('projectId')) {
+                return redirect()->route('project.show', [
+                    'id' => $projectId,
+                    'tab' => 'employees'
+                ])->with(SESSION_ERROR, $e->getMessage());
+            }
+            if ($request->input('teamId')) {
+                return redirect()->route('team.show', [
+                    'id' => $teamId,
+                    'tab' => 'employees'
+                ])->with(SESSION_ERROR, $e->getMessage());
+            }
             return redirect()->route('employee.index')->with(SESSION_ERROR, $e->getMessage());
         }
     }
     public function create(Request $request)
     {
         try {
+            $teamId = $request->input('teamId');
             $this->employeeService->create($request->all());
-
-            return redirect()->route('employee.index')->with(SESSION_SUCCESS, CREATE_SUCCESS);
+            if (!$request->input('teamId')) {
+                return redirect()->route('employee.index')->with(SESSION_SUCCESS, CREATE_SUCCESS);
+            }
+            return redirect()->route('team.show', [
+                'id' => $teamId,
+                'tab' => 'employees'
+            ])->with(SESSION_SUCCESS, CREATE_SUCCESS);
         } catch (Exception $e) {
             Log::info(
                 $e->getMessage(),
@@ -167,15 +210,35 @@ class EmployeeController extends Controller
                     'data' => request()->all()
                 ]
             );
-            return redirect()->route('employee.index')->with(SESSION_ERROR, $e->getMessage());
+            if (!$request->input('teamId')) {
+                return redirect()->route('employee.index')->with(SESSION_ERROR, $e->getMessage());
+            }
+            return redirect()->route('team.show', [
+                'id' => $teamId,
+                'tab' => 'employees'
+            ])->with(SESSION_ERROR, $e->getMessage());
         }
     }
 
-    public function delete($id)
+    public function delete($id, Request $request)
     {
         try {
-            $this->employeeService->delete($id);
+            $projectId = $request->input('projectId');
+            $teamId = $request->input('teamId');
 
+            $this->employeeService->delete($id);
+            if ($request->input('projectId')) {
+                return redirect()->route('project.show', [
+                    'id' => $projectId,
+                    'tab' => 'employees'
+                ])->with(SESSION_SUCCESS, DELETE_SUCCESS);
+            }
+            if ($request->input('teamId')) {
+                return redirect()->route('team.show', [
+                    'id' => $teamId,
+                    'tab' => 'employees'
+                ])->with(SESSION_SUCCESS, DELETE_SUCCESS);
+            }
             return redirect()->route('employee.index')->with(SESSION_SUCCESS, DELETE_SUCCESS);
         } catch (Exception $e) {
             Log::info(
@@ -185,6 +248,18 @@ class EmployeeController extends Controller
                     'id' => $id
                 ]
             );
+            if ($request->input('projectId')) {
+                return redirect()->route('project.show', [
+                    'id' => $projectId,
+                    'tab' => 'employees'
+                ])->with(SESSION_ERROR, $e->getMessage());
+            }
+            if ($request->input('teamId')) {
+                return redirect()->route('team.show', [
+                    'id' => $teamId,
+                    'tab' => 'employees'
+                ])->with(SESSION_ERROR, $e->getMessage());
+            }
             return redirect()->route('employee.index')->with(SESSION_ERROR, $e->getMessage());
         }
     }

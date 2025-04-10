@@ -224,6 +224,9 @@ class EmployeeService
         $validatedData['old_avatar'] = $request->old_avatar;
         $validatedData['id'] = $id;
 
+        unset($validatedData['projectId']);
+        unset($validatedData['teamId']);
+
         session()->flash('employee_data', $validatedData);
     }
 
@@ -241,6 +244,8 @@ class EmployeeService
         } else {
             $validatedData['avatar'] = $request->old_avatar;
         }
+
+        unset($validatedData['teamId']);
 
         session()->flash('employee_data', $validatedData);
     }

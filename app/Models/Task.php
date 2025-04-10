@@ -18,6 +18,10 @@ class Task extends Model
         'task_status',
         'del_flag'
     ];
+    // public function getDescriptionAttribute()
+    // {
+    //     return preg_replace('/^\s+/m', '', $this->attributes['description']);
+    // }
 
     protected static function boot()
     {

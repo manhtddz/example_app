@@ -89,16 +89,9 @@ use App\Const\TaskStatus;
                             <td>{{ $task->name }}</td>
                             <td>{{ TaskStatus::getName($task->task_status) }}</td>
                             <td>
-                                <a href="{{ route('task.edit', $task->id) }}" class="btn btn-warning btn-sm">Edit</a>
-                                <form method="POST" action="{{ route('task.delete', $task->id) }}"
-                                    style="display:inline-block;">
-                                    @csrf
-                                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal"
-                                        data-bs-target="#confirmModal">
-                                        Delete
-                                    </button>
-                                    @include('dashboard.component.confirm-modal')
-                                </form>
+                                <a href="{{ route('task.edit', $task->id) . '?employeeId=' . $employee->id }}"
+                                    class="btn btn-warning btn-sm">Edit</a>
+                                <a href="{{ route('task.show', $task->id) }}" class="btn btn-primary btn-sm">Details</a>
                             </td>
                         </tr>
                     @endforeach

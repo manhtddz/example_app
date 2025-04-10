@@ -20,15 +20,15 @@ class EmployeeProject extends Model
     protected static function boot()
     {
         parent::boot();
-        static::creating(function ($employeeProject) {
-            $employeeTeam = Employee::where('id', $employeeProject->employee_id)->value('team_id');
-            $projectTeam = Project::where('id', $employeeProject->project_id)->value('team_id');
-            $employeeProject->ins_id = auth()->user()->id;
-            $employeeProject->del_flag = IS_NOT_DELETED;
+        static::creating(function ($model) {
+            // $employeeTeam = Employee::where('id', $employeeProject->employee_id)->value('team_id');
+            // $projectTeam = Project::where('id', $employeeProject->project_id)->value('team_id');
+            $model->ins_id = auth()->user()->id;
+            // $employeeProject->del_flag = IS_NOT_DELETED;
             
-            if ($employeeTeam !== $projectTeam) {
-                throw new \Exception('Employee can only join projects of their own team.');
-            }
+            // if ($employeeTeam !== $projectTeam) {
+            //     throw new \Exception('Employee can only join projects of their own team.');
+            // }
         });
 
         static::updating(function ($model) {

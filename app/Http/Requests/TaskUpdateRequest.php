@@ -38,6 +38,7 @@ class TaskUpdateRequest extends FormRequest
                     }),
             ],
             'task_status' => ['required', 'in:1,2', 'integer'],
+            'description' => []
         ];
     }
 }

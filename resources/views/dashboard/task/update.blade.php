@@ -1,9 +1,17 @@
 <?php
 use App\Const\TaskStatus;
 ?>
+@php
+    $queryString = '';
+    if ($projectId) {
+        $queryString = '?projectId=' . $projectId;
+    } elseif ($employeeId) {
+        $queryString = '?employeeId=' . $employeeId;
+    }
+@endphp
 <div class="container mt-4">
     <h2 class="mb-3">Task - Update</h2>
-    <form action="{{ route('task.updateConfirm', $task->id) }}" method="POST">
+    <form action="{{ route('task.updateConfirm', $task->id) . $queryString }}" method="POST">
         @csrf
         <div class="mb-3">
             <label class="form-label" for="project">Project:</label><br>
@@ -26,8 +34,8 @@ use App\Const\TaskStatus;
         </div>
         <div class="mb-3">
             <label for="description" class="form-label">Description:</label>
-            <textarea class="form-control" name="description"
-                value="{{ old('description', session('task_data.description')) }}"></textarea>
+            <textarea class="form-control"
+                name="description">{{ old('description', session('task_data.description')) }}</textarea>
             @error('description') <p style="color: red;">{{ $message }}</p> @enderror
         </div>
         <div class="mb-3">
@@ -46,7 +54,7 @@ use App\Const\TaskStatus;
             <button type="submit" class="btn btn-success">
                 Confirm
             </button>
-            <a href="{{ route('task.index') }}" class="btn btn-secondary">Cancel</a>
+            <a href="{{ url()->previous() }}" class="btn btn-secondary">Cancel</a>
         </div>
     </form>
 </div>

@@ -24,7 +24,6 @@ class ProjectUpdateRequest extends FormRequest
     {
         $id = $this->route("id");
         return [
-            'team_id' => ['required', 'integer', Rule::exists('m_teams', 'id')],
             "name" => [
                 'required',
                 'max:128',

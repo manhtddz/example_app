@@ -28,10 +28,10 @@ class ProjectService
     {
         return $this->projectRepository->findAll();
     }
-    // public function findAllWithTeamName()
-    // {
-    //     return $this->projectRepository->findAllWithTeamName();
-    // }
+    public function findAllWithTeam($teamId)
+    {
+        return $this->projectRepository->findAllIdWithTeam($teamId);
+    }
     public function findAllPaging()
     {
         return $this->projectRepository->findAllPaging(ITEM_PER_PAGE);
@@ -136,6 +136,8 @@ class ProjectService
     public function prepareConfirmForUpdate($request)
     {
         $validatedData = $request->validated();
+
+        unset($validatedData['teamId']);
 
         session()->flash('project_data', $validatedData);
     }

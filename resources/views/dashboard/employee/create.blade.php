@@ -12,13 +12,13 @@ use App\Const\TypeOfWork;
 @endif
 <div class="container mt-4">
     <h2 class="mb-3">Employee - Create</h2>
-    <form action="{{ route('employee.createConfirm') }}" method="POST" enctype="multipart/form-data">
+    <form action="{{ route('employee.createConfirm') . ($teamId ? '?teamId=' . $teamId : '')}}" method="POST" enctype="multipart/form-data">
         @csrf
         <div class="mb-3">
             <label class="form-label" for="team">Team:</label><br>
             <select class="form-control" id="team" name="team_id">
                 @php
-                    $selectedTeamId = old('team_id', session('employee_data.team_id'));
+                    $selectedTeamId = old('team_id', session('employee_data.team_id',$teamId ?? ''));
                 @endphp
                 <option value="">{{ '' }}
                 </option>
@@ -197,7 +197,7 @@ use App\Const\TypeOfWork;
                 <button type="submit" class="btn btn-success">
                     Confirm
                 </button>
-                <a href="{{ route('employee.index') }}" class="btn btn-secondary">Cancel</a>
+                <a href="{{ url()->previous() }}" class="btn btn-secondary">Cancel</a>
             </div>    
         </form>
 </div>

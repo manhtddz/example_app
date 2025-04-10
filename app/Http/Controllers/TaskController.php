@@ -62,21 +62,29 @@ class TaskController extends Controller
             compact(['config', 'task', 'direction', 'id', 'data'])
         );
     }
-    public function edit($id)
+    public function edit($id, Request $request)
     {
         try {
             $projects = $this->projectService->findAll();
             $task = $this->taskService->findById($id);
+            $projectId = $request->input('projectId');
+            $employeeId = $request->input('employeeId');
             $config = $this->config();
 
             $config['template'] = "dashboard.task.update";
 
-            return view('dashboard.layout', compact(['config', 'task', 'projects']));
+            return view('dashboard.layout', compact(['config', 'task', 'projects', 'projectId', 'employeeId']));
         } catch (Exception $e) {
             \Log::info($e->getMessage(), [
                 'action' => __METHOD__,
                 'id' => $id
             ]);
+            if ($request->input('projectId')) {
+                return redirect()->route('project.show', $projectId)->with(SESSION_ERROR, $e->getMessage());
+            }
+            if ($request->input('employeeId')) {
+                return redirect()->route('employee.show', $employeeId)->with(SESSION_ERROR, $e->getMessage());
+            }
             return redirect()->route('task.index')->with(SESSION_ERROR, $e->getMessage());
         }
     }
@@ -92,12 +100,14 @@ class TaskController extends Controller
 
     public function updateConfirm($id, TaskUpdateRequest $request)
     {
+        $projectId = $request->input('projectId');
+        $employeeId = $request->input('employeeId');
         $this->taskService->prepareConfirmForUpdate($request);
 
         $config = $this->config();
         $config['template'] = "dashboard.task.update_confirm";
 
-        return view('dashboard.layout', compact(['config', 'id']));
+        return view('dashboard.layout', compact(['config', 'id', 'projectId', 'employeeId']));
     }
     public function showUpdateConfirm()
     {
@@ -136,8 +146,16 @@ class TaskController extends Controller
     public function update(Request $request, $id)
     {
         try {
+            $projectId = $request->input('projectId');
+            $employeeId = $request->input('employeeId');
             $this->taskService->update($id, $request->all());
-            return redirect()->route('task.index')->with(SESSION_SUCCESS, UPDATE_SUCCESS);
+            if ($request->input('projectId')) {
+                return redirect()->route('project.show', $projectId)->with(SESSION_SUCCESS, UPDATE_SUCCESS);
+            }
+            if ($request->input('employeeId')) {
+                return redirect()->route('employee.show', $employeeId)->with(SESSION_SUCCESS, UPDATE_SUCCESS);
+            }
+            return redirect()->route('task.index', $projectId)->with(SESSION_SUCCESS, UPDATE_SUCCESS);
         } catch (Exception $e) {
             \Log::info(
                 $e->getMessage(),
@@ -146,7 +164,13 @@ class TaskController extends Controller
                     'data' => array_merge(['id' => $id], $request->all())
                 ]
             );
-            return redirect()->route('task.index')->with(SESSION_ERROR, $e->getMessage());
+            if ($request->input('projectId')) {
+                return redirect()->route('project.show', $projectId)->with(SESSION_ERROR, $e->getMessage());
+            }
+            if ($request->input('employeeId')) {
+                return redirect()->route('employee.show', $employeeId)->with(SESSION_ERROR, $e->getMessage());
+            }
+            return redirect()->route('task.index', $projectId)->with(SESSION_ERROR, $e->getMessage());
         }
     }
     public function create(Request $request)
@@ -166,14 +190,26 @@ class TaskController extends Controller
                     'data' => request()->all()
                 ]
             );
-            return redirect()->route('task.index')->with(SESSION_ERROR, $e->getMessage());
+            if (!$request->input('projectId')) {
+                return redirect()->route('task.index')->with(SESSION_ERROR, $e->getMessage());
+            }
+            return redirect()->route('project.show', $projectId)->with(SESSION_ERROR, $e->getMessage());
         }
     }
-    public function delete($id)
+    public function delete($id, Request $request)
     {
         try {
+            $projectId = $request->input('projectId');
+            $employeeId = $request->input('employeeId');
+
             $this->taskService->delete($id);
-            return redirect()->route('task.index')->with(SESSION_SUCCESS, DELETE_SUCCESS);
+            if ($request->input('projectId')) {
+                return redirect()->route('project.show', $projectId)->with(SESSION_SUCCESS, DELETE_SUCCESS);
+            }
+            if ($request->input('employeeId')) {
+                return redirect()->route('employee.show', $employeeId)->with(SESSION_SUCCESS, DELETE_SUCCESS);
+            }
+            return redirect()->route('task.index', $projectId)->with(SESSION_SUCCESS, DELETE_SUCCESS);
         } catch (Exception $e) {
             \Log::info(
                 $e->getMessage(),
@@ -182,7 +218,13 @@ class TaskController extends Controller
                     'id' => $id
                 ]
             );
-            return redirect()->route('task.index')->with(SESSION_ERROR, $e->getMessage());
+            if ($request->input('projectId')) {
+                return redirect()->route('project.show', $projectId)->with(SESSION_ERROR, $e->getMessage());
+            }
+            if ($request->input('employeeId')) {
+                return redirect()->route('employee.show', $employeeId)->with(SESSION_ERROR, $e->getMessage());
+            }
+            return redirect()->route('task.index', $projectId)->with(SESSION_ERROR, $e->getMessage());
         }
     }
 
@@ -194,7 +236,7 @@ class TaskController extends Controller
             $task = $this->taskService->findById($id);
 
             $employees = $this->employeeService
-                ->searchWithProjectPaging($task->project->id, $request->all(), $sortBy, $direction);
+                ->search($request->all(), $sortBy, $direction);
             $selectedEmployees = $this->employeeService
                 ->findAllWithTask($task->id)->toArray();
             $config = $this->config();

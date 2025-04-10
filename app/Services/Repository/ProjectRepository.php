@@ -17,19 +17,27 @@ class ProjectRepository extends BaseRepository implements IProjectRepository
         parent::__construct(self::MODEL);
     }
 
-    // public function findAllWithTeamName()
-    // {
-    //     try {
-    //         return Project::with([
-    //             'team' => function ($query) {
-    //                 $query->select('id', 'name');
-    //             }
-    //         ])->get();
-    //     } catch (Exception $e) {
-    //         Log::info($e->getMessage());
-    //         return null;
-    //     }
-    // }
+    public function findAllIdWithTeam($teamId)
+    {
+        try {
+            $query = Project::withoutGlobalScopes()
+                ->where('del_flag', IS_NOT_DELETED)
+                ->whereExists(function ($query) use ($teamId) {
+                    $query
+                        ->from('team_project')
+                        ->join('m_teams', 'team_project.team_id', '=', 'm_teams.id')
+                        ->whereColumn('team_project.project_id', 'projects.id')
+                        ->where('m_teams.id', $teamId)
+                        ->where('m_teams.del_flag', IS_NOT_DELETED)
+                        ->where('team_project.del_flag', IS_NOT_DELETED);
+                });
+
+            return $query->pluck('id');
+        } catch (Exception $e) {
+            Log::info($e->getMessage());
+            return null;
+        }
+    }
     public function search($amount, array $requestData, $sort = null, $direction = 'asc')
     {
         try {

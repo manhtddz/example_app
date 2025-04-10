@@ -56,6 +56,9 @@ use App\Const\TaskStatus;
                     </div>
                 </form>
             </div>
+             <!-- Add project to project -->
+             <a href="{{ route('team.addProjects', $team->id) }}" class="btn btn-primary btn-sm">Add Project</a>
+
             <!-- Search Result -->
             @if($data->isNotEmpty())
                 <table class="table table-bordered table-sm">
@@ -82,8 +85,12 @@ use App\Const\TaskStatus;
                                 <td>{{ $project->id }}</td>
                                 <td>{{ $project->name }}</td>
                                 <td>
-                                    <a href="{{ route('project.edit', $project->id) }}" class="btn btn-warning btn-sm">Edit</a>
-                                    <form method="POST" action="{{ route('project.delete', $project->id) }}"
+                                    <a href="{{ route('project.edit', $project->id) . '?teamId=' . $team->id }}"
+                                        class="btn btn-warning btn-sm">Edit</a>
+                                    <a href="{{ route('project.show', $project->id) }}"
+                                        class="btn btn-primary btn-sm">Details</a>
+                                    <form method="POST"
+                                        action="{{ route('project.delete', $project->id) . '?teamId=' . $team->id}}"
                                         style="display:inline-block;">
                                         @csrf
                                         <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal"
@@ -137,6 +144,9 @@ use App\Const\TaskStatus;
                     </div>
                 </form>
             </div>
+            <!-- Create from details -->
+            <a href="{{ route('employee.create') . '?teamId=' . $team->id }}" class="btn btn-primary btn-sm">Create
+                Employee</a>
             <!-- Search Result -->
             @if($data->isNotEmpty())
                 <table class="table table-bordered table-sm">
@@ -169,8 +179,12 @@ use App\Const\TaskStatus;
                         <tr>
                             <td>{{ $employee->id }}</td>
                             <td>
-                                <img src="{{ url(APP_URL . $employee->avatar) }}" width="50" height="50" class="rounded-circle"
-                                    title="{{ $employee->avatar ?? NO_AVATAR }}">
+                                @if (!$employee->avatar)
+                                    <small class="text-muted">NO_AVATAR</small>
+                                @else
+                                    <img src="{{ url(APP_URL . $employee->avatar) }}" width="50" height="50" class="rounded-circle"
+                                        title="{{ $employee->avatar }}">
+                                @endif
                             </td>
                             <td>
                                 {{ $employee->name }}
@@ -179,15 +193,18 @@ use App\Const\TaskStatus;
                                 {{ $employee->email }}
                             </td>
                             <td>
-                                <a href="{{ route('employee.edit', $employee->id) }}" class="btn btn-warning btn-sm">Edit</a>
-                                <form method="POST" action="{{ route('employee.delete', $employee->id) }}"
+                                <a href="{{ route('employee.edit', $employee->id) . '?teamId=' . $team->id }}"
+                                    class="btn btn-warning btn-sm">Edit</a>
+                                <a href="{{ route('employee.show', $employee->id) }}" class="btn btn-primary btn-sm">Details</a>
+                                <form method="POST"
+                                    action="{{ route('employee.delete', $employee->id) . '?teamId=' . $team->id }} "
                                     style="display:inline-block;">
                                     @csrf
                                     <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal"
-                                        data-bs-target="#confirmModal">
+                                        data-bs-target="#confirmModal_employee{{ $employee->id }}">
                                         Delete
                                     </button>
-                                    @include('dashboard.component.confirm-modal')
+                                    @include('dashboard.component.confirm-modal', ['modalId' => 'confirmModal_employee' . $employee->id])
                                 </form>
                             </td>
                         </tr>
@@ -212,49 +229,51 @@ use App\Const\TaskStatus;
             @endif
         </div>
         <!-- Pagination -->
-        @if ($data->hasPages())
+        <div class="d-flex justify-content-between ">
+            @if ($data->hasPages())
 
-            <nav>
-                <ul class="pagination pagination-sm">
-                    @if ($data->currentPage() > 1)
-                        <li class="page-item">
-                            <a class="page-link" href="{{ request()->fullUrlWithQuery(['page' => 1]) }}">First</a>
-                        </li>
-                    @endif
+                <nav>
+                    <ul class="pagination pagination-sm">
+                        @if ($data->currentPage() > 1)
+                            <li class="page-item">
+                                <a class="page-link" href="{{ request()->fullUrlWithQuery(['page' => 1]) }}">First</a>
+                            </li>
+                        @endif
 
-                    @if($data->onFirstPage())
-                        <li class="page-item disabled"><a class="page-link">Prev</a></li>
-                    @else
-                        <li class="page-item">
-                            <a class="page-link"
-                                href="{{ request()->fullUrlWithQuery(['page' => $data->currentPage() - 1]) }}">Prev</a>
-                        </li>
-                    @endif
+                        @if($data->onFirstPage())
+                            <li class="page-item disabled"><a class="page-link">Prev</a></li>
+                        @else
+                            <li class="page-item">
+                                <a class="page-link"
+                                    href="{{ request()->fullUrlWithQuery(['page' => $data->currentPage() - 1]) }}">Prev</a>
+                            </li>
+                        @endif
 
-                    @for ($i = 1; $i <= $data->lastPage(); $i++)
-                        <li class="page-item {{ $i == $data->currentPage() ? 'active' : '' }}">
-                            <a class="page-link" href="{{ request()->fullUrlWithQuery(['page' => $i]) }}">{{ $i }}</a>
-                        </li>
-                    @endfor
+                        @for ($i = 1; $i <= $data->lastPage(); $i++)
+                            <li class="page-item {{ $i == $data->currentPage() ? 'active' : '' }}">
+                                <a class="page-link" href="{{ request()->fullUrlWithQuery(['page' => $i]) }}">{{ $i }}</a>
+                            </li>
+                        @endfor
 
-                    @if ($data->hasMorePages())
-                        <li class="page-item">
-                            <a class="page-link"
-                                href="{{ request()->fullUrlWithQuery(['page' => $data->currentPage() + 1]) }}">Next</a>
-                        </li>
-                    @else
-                        <li class="page-item disabled"><a class="page-link">Next</a></li>
-                    @endif
+                        @if ($data->hasMorePages())
+                            <li class="page-item">
+                                <a class="page-link"
+                                    href="{{ request()->fullUrlWithQuery(['page' => $data->currentPage() + 1]) }}">Next</a>
+                            </li>
+                        @else
+                            <li class="page-item disabled"><a class="page-link">Next</a></li>
+                        @endif
 
-                    @if ($data->currentPage() < $data->lastPage())
-                        <li class="page-item">
-                            <a class="page-link"
-                                href="{{ request()->fullUrlWithQuery(['page' => $data->lastPage()]) }}">Last</a>
-                        </li>
-                    @endif
-                </ul>
-            </nav>
-        @endif
+                        @if ($data->currentPage() < $data->lastPage())
+                            <li class="page-item">
+                                <a class="page-link"
+                                    href="{{ request()->fullUrlWithQuery(['page' => $data->lastPage()]) }}">Last</a>
+                            </li>
+                        @endif
+                    </ul>
+                </nav>
+            @endif
+        </div>
     </div>
 </div>
 

@@ -167,6 +167,9 @@ class EmployeeRepository extends BaseRepository implements IEmployeeRepository
                     if ($key === 'email') {
                         $query->where($key, 'like', '%' . $value . '%');
                     }
+                    if ($key === 'team_id') {
+                        $query->where($key, $value);
+                    }
                 }
             }
 

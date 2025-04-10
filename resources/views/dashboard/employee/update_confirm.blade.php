@@ -5,12 +5,19 @@ use App\Const\Status;
 use App\Const\TypeOfWork;
 use App\Models\Team;
 ?>
-
+@php
+    $queryString = '';
+    if ($projectId) {
+        $queryString = '?projectId=' . $projectId;
+    } elseif ($teamId) {
+        $queryString = '?teamId=' . $teamId;
+    }
+@endphp
 <div class="container mt-4">
     <div class="card p-4">
         <h4 class="mb-3">Employee - Update confirm</h4>
 
-        <form action="{{ route('employee.update', $id) }}" method="POST">
+        <form action="{{ route('employee.update', $id) . $queryString}}" method="POST">
             @csrf
             <div class="mb-3">
                 <label class="form-label"><strong>Avatar:</strong></label>
@@ -103,7 +110,7 @@ use App\Models\Team;
                 <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#confirmModal">
                     Save
                 </button>
-                <a href="{{ route('employee.edit', $id) }}" class="btn btn-secondary">Cancel</a>
+                <a href="{{ url()->previous() }}" class="btn btn-secondary">Cancel</a>
             </div>
             @include('dashboard.component.confirm-modal')
 

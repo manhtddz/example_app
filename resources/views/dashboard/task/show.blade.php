@@ -20,6 +20,17 @@ use App\Const\TaskStatus;
     <p><strong>Task Name:</strong> {{ $task->name }}</p>
     <p><strong>Project:</strong> {{ $task->project->name }}</p>
     <p><strong>Status:</strong> {{ TaskStatus::getName($task->task_status) }}</p>
+    <div class="mt-3">
+        <strong>Description:</strong>
+        <div class="card">
+            <div class="card-body bg-light">
+                <pre
+                    style="white-space: pre-wrap; font-family: monospace; font-size: 14px; margin: 0; padding: 0;">{{ $task->description }}</pre>
+            </div>
+        </div>
+    </div>
+
+
 
     <!-- Tabs Content -->
     <div class="tab-content mt-3">
@@ -77,8 +88,12 @@ use App\Const\TaskStatus;
                         <tr>
                             <td>{{ $employee->id }}</td>
                             <td>
-                                <img src="{{ url(APP_URL . $employee->avatar) }}" width="50" height="50" class="rounded-circle"
-                                    title="{{ $employee->avatar ?? NO_AVATAR }}">
+                                @if (!$employee->avatar)
+                                    <small class="text-muted">NO_AVATAR</small>
+                                @else
+                                    <img src="{{ url(APP_URL . $employee->avatar) }}" width="50" height="50" class="rounded-circle"
+                                        title="{{ $employee->avatar }}">
+                                @endif
                             </td>
                             <td>
                                 {{ $employee->name }}
@@ -87,17 +102,7 @@ use App\Const\TaskStatus;
                                 {{ $employee->email }}
                             </td>
                             <td>
-                                <a href="{{ route('employee.edit', $employee->id) }}" class="btn btn-warning btn-sm">Edit</a>
-                                <!-- <a href="{{ route('employee.show', $employee->id) }}" class="btn btn-primary btn-sm">Details</a> -->
-                                <form method="POST" action="{{ route('employee.delete', $employee->id) }}"
-                                    style="display:inline-block;">
-                                    @csrf
-                                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal"
-                                        data-bs-target="#confirmModal">
-                                        Delete
-                                    </button>
-                                    @include('dashboard.component.confirm-modal')
-                                </form>
+                                <a href="{{ route('employee.show', $employee->id) }}" class="btn btn-primary btn-sm">Details</a>
                             </td>
                         </tr>
                     @endforeach

@@ -4,9 +4,17 @@ use App\Const\Position;
 use App\Const\Status;
 use App\Const\TypeOfWork;
 ?>
+@php
+    $queryString = '';
+    if($projectId) {
+        $queryString = '?projectId='. $projectId;
+    } elseif ($teamId) {
+        $queryString = '?teamId='. $teamId;
+    }
+@endphp
 <div class="container mt-4">
     <h2 class="mb-3">Employee - Update</h2>
-    <form action="{{ route('employee.updateConfirm',$employee->id) }}" method="POST" enctype="multipart/form-data">
+    <form action="{{ route('employee.updateConfirm',$employee->id) . $queryString}}" method="POST" enctype="multipart/form-data">
         @csrf
         <div class="mb-3">
             <label class="form-label" for="team">Team:</label><br>
@@ -185,7 +193,7 @@ use App\Const\TypeOfWork;
                 <button type="submit" class="btn btn-success">
                     Confirm
                 </button>
-                <a href="{{ route('employee.index') }}" class="btn btn-secondary">Cancel</a>
+                <a href="{{ url()->previous() }}" class="btn btn-secondary">Cancel</a>
             </div>
         </form>
 </div>

@@ -116,6 +116,9 @@ class TaskService
     public function prepareConfirmForUpdate($request)
     {
         $validatedData = $request->validated();
+        // dd($validatedData);
+        unset($validatedData['projectId']);
+        unset($validatedData['employeeId']);
 
         session()->flash('task_data', $validatedData);
     }

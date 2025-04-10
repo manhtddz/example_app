@@ -37,8 +37,8 @@ use App\Const\TaskStatus;
 
         <div class="mb-3">
             <label for="description" class="form-label">Description:</label>
-            <textarea class="form-control" name="description"
-                value="{{ old('description', session('task_data.description')) }}"></textarea>
+            <textarea class="form-control" name="description">{{ old('description', session('task_data.description')) }}
+            </textarea>
             @error('description') <p style="color: red;">{{ $message }}</p> @enderror
         </div>
 
@@ -58,7 +58,7 @@ use App\Const\TaskStatus;
             <button type="submit" class="btn btn-success">
                 Confirm
             </button>
-            <a href="{{ route('task.index') }}" class="btn btn-secondary">Cancel</a>
+            <a href="{{ url()->previous() }}" class="btn btn-secondary">Cancel</a>
         </div>
     </form>
 </div>

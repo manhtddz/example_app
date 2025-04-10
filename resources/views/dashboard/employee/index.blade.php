@@ -90,8 +90,12 @@
                 <tr>
                     <td>{{ $employee->id }}</td>
                     <td>
-                        <img src="{{ url(APP_URL . $employee->avatar) }}" width="50" height="50" class="rounded-circle"
-                            title="{{ $employee->avatar ?? NO_AVATAR }}">
+                        @if (!$employee->avatar)
+                            <small class="text-muted">NO_AVATAR</small>
+                        @else
+                            <img src="{{ url(APP_URL . $employee->avatar) }}" width="50" height="50" class="rounded-circle"
+                                title="{{ $employee->avatar }}">
+                        @endif
                     </td>
                     <td>
                         {{ $employee->team->name }}

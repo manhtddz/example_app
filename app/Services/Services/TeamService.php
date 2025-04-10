@@ -144,4 +144,40 @@ class TeamService
 
         session()->flash('team_data', $validatedData);
     }
+
+    public function getSelectData($request)
+    {
+        $selectedProjects = $request->input('selectedProjects') ?? [];
+        $selectProjects = $request->input('selectProjects') ?? [];
+
+        $unsetData = array_unique($selectedProjects);
+        $unsetData = array_diff($unsetData, $selectProjects);
+
+        $newData = array_unique($selectProjects);
+        $newData = array_diff($newData, $selectedProjects);
+
+        return [
+            'unsetData' => $unsetData,
+            'newData' => $newData
+        ];
+    }
+
+    public function addProjectsToTeam(array $data, $teamId)
+    {
+        foreach ($data as $projectId) {
+            $result = $this->teamRepository->createRelationWithProject($teamId, $projectId);
+            if (!$result) {
+                throw new Exception(CREATE_FAILED);
+            }
+        }
+    }
+    public function removeProjectsFromTeam(array $data, $teamId)
+    {
+        foreach ($data as $projectId) {
+            $result = $this->teamRepository->deleteRelationWithProject($teamId, $projectId);
+            if (!$result) {
+                throw new Exception(DELETE_FAILED);
+            }
+        }
+    }
 }

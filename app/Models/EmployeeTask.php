@@ -20,17 +20,17 @@ class EmployeeTask extends Model
     protected static function boot()
     {
         parent::boot();
-        static::creating(function ($employeeTask) {
-            $projectOfTask = Task::where('id', $employeeTask->task_id)->value('project_id');
-            $isEmployeeInProject = EmployeeProject::where('employee_id', $employeeTask->employee_id)
-                ->where('project_id', $projectOfTask)
-                ->exists();
+        static::creating(function ($model) {
+            // $projectOfTask = Task::where('id', $employeeTask->task_id)->value('project_id');
+            // $isEmployeeInProject = EmployeeProject::where('employee_id', $employeeTask->employee_id)
+            //     ->where('project_id', $projectOfTask)
+            //     ->exists();
 
-            if (!$isEmployeeInProject) {
-                throw new \Exception('Employee can only take tasks of their projects.');
-            }
+            // if (!$isEmployeeInProject) {
+            //     throw new \Exception('Employee can only take tasks of their projects.');
+            // }
 
-            $employeeTask->ins_id = auth()->user()->id;
+            $model->ins_id = auth()->user()->id;
         });
 
         static::updating(function ($model) {

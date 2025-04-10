@@ -18,7 +18,7 @@
             <button type="submit" class="btn btn-success">
                 Confirm
             </button>
-            <a href="{{ route('team.index') }}" class="btn btn-secondary">Cancel</a>
+            <a href="{{ url()->previous() }}" class="btn btn-secondary">Cancel</a>
         </div>
     </form>
 </div>

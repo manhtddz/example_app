@@ -54,6 +54,7 @@ class ProjectController extends Controller
             $sortBy = $request->input('sortBy');
             $direction = $request->input('direction', 'asc');
             $project = $this->projectService->findById($id);
+            $teams = $this->teamService->findAll();
             $data = $this->projectService->searchDetailsWithProject(
                 $id,
                 $request->input('tab'),
@@ -67,7 +68,7 @@ class ProjectController extends Controller
 
             return view(
                 'dashboard.layout',
-                compact(['config', 'project', 'direction', 'id', 'data'])
+                compact(['config', 'project', 'teams', 'direction', 'id', 'data'])
             );
         } catch (Exception $e) {
             Log::info($e->getMessage(), [
@@ -77,22 +78,26 @@ class ProjectController extends Controller
             return redirect()->route('project.index')->with(SESSION_ERROR, $e->getMessage());
         }
     }
-    public function edit($id)
+    public function edit($id, Request $request)
     {
         try {
+            $teamId = $request->input('teamId');
             $teams = $this->teamService->findAll();
             $project = $this->projectService->findById($id);
             $config = $this->config();
 
             $config['template'] = "dashboard.project.update";
 
-            return view('dashboard.layout', compact(['config', 'project', 'teams']));
+            return view('dashboard.layout', compact(['config', 'project', 'teams', 'teamId']));
         } catch (Exception $e) {
             Log::info($e->getMessage(), [
                 'action' => __METHOD__,
                 'id' => $id
             ]);
-            return redirect()->route('project.index')->with(SESSION_ERROR, $e->getMessage());
+            if (!$request->input('teamId')) {
+                return redirect()->route('project.index')->with(SESSION_ERROR, $e->getMessage());
+            }
+            return redirect()->route('team.show', $teamId)->with(SESSION_ERROR, $e->getMessage());
         }
     }
     public function getCreateForm()
@@ -105,12 +110,13 @@ class ProjectController extends Controller
     }
     public function updateConfirm($id, ProjectUpdateRequest $request)
     {
+        $teamId = $request->input('teamId');
         $this->projectService->prepareConfirmForUpdate($request);
 
         $config = $this->config();
         $config['template'] = "dashboard.project.update_confirm";
 
-        return view('dashboard.layout', compact(['config', 'id']));
+        return view('dashboard.layout', compact(['config', 'id', 'teamId']));
     }
     public function showUpdateConfirm()
     {
@@ -148,8 +154,12 @@ class ProjectController extends Controller
     public function update(Request $request, $id)
     {
         try {
+            $teamId = $request->input('teamId');
             $this->projectService->update($id, $request->all());
-            return redirect()->route('project.index')->with(SESSION_SUCCESS, UPDATE_SUCCESS);
+            if (!$request->input('teamId')) {
+                return redirect()->route('project.index')->with(SESSION_SUCCESS, UPDATE_SUCCESS);
+            }
+            return redirect()->route('team.show', $teamId)->with(SESSION_SUCCESS, UPDATE_SUCCESS);
         } catch (Exception $e) {
             Log::info(
                 $e->getMessage(),
@@ -158,7 +168,10 @@ class ProjectController extends Controller
                     'data' => array_merge(['id' => $id], $request->all())
                 ]
             );
-            return redirect()->route('project.index')->with(SESSION_ERROR, $e->getMessage());
+            if (!$request->input('teamId')) {
+                return redirect()->route('project.index')->with(SESSION_ERROR, $e->getMessage());
+            }
+            return redirect()->route('team.show', $teamId)->with(SESSION_ERROR, $e->getMessage());
         }
     }
     public function create(Request $request)
@@ -178,11 +191,15 @@ class ProjectController extends Controller
         }
     }
 
-    public function delete($id)
+    public function delete($id, Request $request)
     {
         try {
+            $teamId = $request->input('teamId');
             $this->projectService->delete($id);
-            return redirect()->route('project.index')->with(SESSION_SUCCESS, DELETE_SUCCESS);
+            if (!$request->input('teamId')) {
+                return redirect()->route('project.index')->with(SESSION_SUCCESS, DELETE_SUCCESS);
+            }
+            return redirect()->route('team.show', $teamId)->with(SESSION_SUCCESS, DELETE_SUCCESS);
         } catch (Exception $e) {
             Log::info(
                 $e->getMessage(),
@@ -191,7 +208,10 @@ class ProjectController extends Controller
                     'id' => $id
                 ]
             );
-            return redirect()->route('project.index')->with(SESSION_ERROR, $e->getMessage());
+            if (!$request->input('teamId')) {
+                return redirect()->route('project.index')->with(SESSION_ERROR, $e->getMessage());
+            }
+            return redirect()->route('team.show', $teamId)->with(SESSION_ERROR, $e->getMessage());
         }
     }
 
@@ -202,7 +222,7 @@ class ProjectController extends Controller
             $direction = $request->input('direction', 'asc');
             $project = $this->projectService->findById($id);
             $employees = $this->employeeService
-                ->searchWithTeamPaging($project->team->id, $request->all(), $sortBy, $direction);
+                ->search($request->all(), $sortBy, $direction);
             $selectedEmployees = $this->employeeService
                 ->findAllWithProject($project->id)->toArray();
             $config = $this->config();

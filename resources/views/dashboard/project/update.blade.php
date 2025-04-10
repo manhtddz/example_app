@@ -1,6 +1,7 @@
 <div class="container mt-4">
     <h2 class="mb-3">Project - Update</h2>
-    <form action="{{ route('project.updateConfirm', $project->id) }}" method="POST">
+    <form action="{{ route('project.updateConfirm', $project->id) . ($teamId ? '?teamId=' . $teamId : '') }}"
+        method="POST">
         @csrf
         <div class="mb-3">
             <label for="name" class="form-label">Name:</label>
@@ -13,7 +14,7 @@
             <button type="submit" class="btn btn-success">
                 Confirm
             </button>
-            <a href="{{ route('project.index') }}" class="btn btn-secondary">Cancel</a>
+            <a href="{{ url()->previous() }}" class="btn btn-secondary">Cancel</a>
         </div>
     </form>
 </div>

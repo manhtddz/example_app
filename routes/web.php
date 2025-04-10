@@ -33,17 +33,15 @@ foreach (['team' => TeamController::class, 'employee' => EmployeeController::cla
             if ($prefix === 'project' || $prefix === 'task') {
                 Route::post('add-employees/{id}', [$controller, 'addEmployees'])->name("$prefix.addEmployees");
             }
+            if ($prefix === 'team') {
+                Route::post('add-projects/{id}', [$controller, 'addProjects'])->name("$prefix.addProjects");
+            }
         });
     });
 }
 
 // Template + confirm routes
-foreach ([
-    'team' => TeamController::class,
-    'employee' => EmployeeController::class,
-    'project' => ProjectController::class,
-    'task' => TaskController::class
-] as $prefix => $controller) {
+foreach (['team' => TeamController::class, 'employee' => EmployeeController::class, 'project' => ProjectController::class, 'task' => TaskController::class] as $prefix => $controller) {
     Route::middleware([
         AuthenticationMiddleware::class,
         ClearSessionTempFileMiddleware::class
@@ -64,6 +62,9 @@ foreach ([
 
             if ($prefix === 'project' || $prefix === 'task') {
                 Route::get('add-employees/{id}', [$controller, 'getAddEmployees'])->name("$prefix.addEmployees");
+            }
+            if ($prefix === 'team') {
+                Route::get('add-projects/{id}', [$controller, 'getAddProjects'])->name("$prefix.addProjects");
             }
         });
 

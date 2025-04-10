@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\TeamCreateRequest;
 use App\Http\Requests\TeamUpdateRequest;
+use App\Services\Services\ProjectService;
 use App\Services\Services\TeamService;
 use Exception;
 use Illuminate\Http\Request;
@@ -14,9 +15,11 @@ use Illuminate\Support\Facades\Log;
 class TeamController extends Controller
 {
     private TeamService $teamService;
-    public function __construct(TeamService $teamService)
+    private ProjectService $projectService;
+    public function __construct(TeamService $teamService, ProjectService $projectService)
     {
         $this->teamService = $teamService;
+        $this->projectService = $projectService;
     }
     public function index(Request $request)
     {
@@ -169,6 +172,65 @@ class TeamController extends Controller
                 ]
             );
             return redirect()->route('team.index')->with(SESSION_ERROR, $e->getMessage());
+        }
+    }
+
+    public function getAddProjects(Request $request, $id)
+    {
+        try {
+            $sortBy = $request->input('sortBy');
+            $direction = $request->input('direction', 'asc');
+            $team = $this->teamService->findById($id);
+
+            $projects = $this->projectService
+                ->search($request->all(), $sortBy, $direction);
+            $selectedProjects = $this->projectService
+                ->findAllWithTeam($team->id)->toArray();
+            $config = $this->config();
+
+            $config['template'] = "dashboard.team.add_projects";
+
+            return view(
+                'dashboard.layout',
+                compact(['config', 'team', 'direction', 'id', 'projects', 'selectedProjects'])
+            );
+        } catch (Exception $e) {
+            \Log::info(
+                $e->getMessage(),
+                [
+                    'action' => __METHOD__,
+                    'id' => $id
+                ]
+            );
+            return redirect()->route('team.index')->with(SESSION_ERROR, $e->getMessage());
+        }
+    }
+
+    public function addProjects(Request $request, $teamId)
+    {
+        try {
+            // dd($request);
+            $task = $this->teamService->findById($teamId);
+            $data = $this->teamService->getSelectData($request);
+
+            $this->teamService->addProjectsToTeam($data['newData'], $teamId);
+            $this->teamService->removeProjectsFromTeam($data['unsetData'], $teamId);
+
+            return back()->with(SESSION_SUCCESS, 'Employees added successfully!');
+        } catch (Exception $e) {
+            \Log::info(
+                $e->getMessage(),
+                [
+                    'action' => __METHOD__,
+                    'id' => $teamId
+                ]
+            );
+
+            if (in_array($e->getMessage(), [NOT_EXIST_ERROR, WRONG_FORMAT_ID])) {
+                return redirect()->route('team.index')->with(SESSION_ERROR, $e->getMessage());
+            }
+
+            return back()->with(SESSION_ERROR, $e->getMessage());
         }
     }
 
